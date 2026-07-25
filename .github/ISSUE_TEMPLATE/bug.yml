@@ -1,0 +1,64 @@
+name: バグ報告
+description: 再現可能な不具合を報告する
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Bot token、Discord の個人情報、投稿本文を貼らないでください。
+  - type: input
+    id: version
+    attributes:
+      label: Yomiage-kun バージョン
+      placeholder: 0.1.0
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: OS
+      options:
+        - Windows 11
+        - macOS Apple Silicon
+        - macOS Intel
+        - その他
+    validations:
+      required: true
+  - type: dropdown
+    id: engine
+    attributes:
+      label: 音声エンジン
+      options:
+        - AivisSpeech
+        - VOICEVOX
+        - その他
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 再現手順
+      placeholder: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期待する動作
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: 実際の動作
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: 補足
+      description: 秘密情報を除いたエラー文やスクリーンショットを追加できます。

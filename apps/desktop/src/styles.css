@@ -1,0 +1,389 @@
+:root {
+  color: #f4f2ed;
+  background: #111315;
+  font-family:
+    Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Hiragino Sans", "Yu Gothic UI", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 720px;
+  min-height: 100vh;
+  margin: 0;
+  background:
+    radial-gradient(circle at 82% 4%, rgba(216, 255, 79, 0.1), transparent 30rem),
+    #111315;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.shell {
+  width: min(1060px, calc(100% - 56px));
+  margin: 0 auto;
+  padding: 46px 0 28px;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 22px;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.brand-mark {
+  display: flex;
+  width: 64px;
+  height: 64px;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: 1px solid #383d3d;
+  border-radius: 18px;
+  background: #1b1e20;
+}
+
+.brand-mark span {
+  width: 5px;
+  border-radius: 8px;
+  background: #d8ff4f;
+}
+
+.brand-mark span:nth-child(1) {
+  height: 18px;
+}
+
+.brand-mark span:nth-child(2) {
+  height: 34px;
+}
+
+.brand-mark span:nth-child(3) {
+  height: 25px;
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  color: #d8ff4f;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  letter-spacing: -0.055em;
+  line-height: 1;
+}
+
+.lead {
+  margin: 9px 0 0;
+  color: #a7adad;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 13px;
+  border: 1px solid #363a3b;
+  border-radius: 999px;
+  color: #a7adad;
+  background: rgba(27, 30, 32, 0.85);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.status-badge i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #747979;
+}
+
+.status-badge.running i {
+  background: #d8ff4f;
+  box-shadow: 0 0 12px rgba(216, 255, 79, 0.75);
+}
+
+.status-badge.starting i,
+.status-badge.stopping i {
+  background: #ffc65c;
+}
+
+.status-badge.failed i {
+  background: #ff6f6a;
+}
+
+.notice {
+  margin-bottom: 18px;
+  padding: 12px 15px;
+  border: 1px solid #3b4141;
+  border-radius: 10px;
+  color: #d7dbd9;
+  background: #1a1e1f;
+  font-size: 0.88rem;
+}
+
+.notice.success {
+  border-color: rgba(216, 255, 79, 0.35);
+}
+
+.notice.error {
+  border-color: rgba(255, 111, 106, 0.48);
+  color: #ffaaa7;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.card {
+  padding: 24px;
+  border: 1px solid #303536;
+  border-radius: 16px;
+  background: rgba(25, 28, 30, 0.92);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.14);
+}
+
+.run-card {
+  grid-column: 1 / -1;
+}
+
+.card-heading {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 22px;
+}
+
+.step {
+  padding-top: 3px;
+  color: #d8ff4f;
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.card-heading p {
+  margin: 5px 0 0;
+  color: #8f9696;
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+label {
+  display: grid;
+  gap: 7px;
+  margin-top: 15px;
+  color: #b8bdbb;
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
+input,
+select {
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 11px;
+  border: 1px solid #383e3f;
+  border-radius: 9px;
+  outline: none;
+  color: #f4f2ed;
+  background: #101214;
+}
+
+input:focus,
+select:focus {
+  border-color: #8ea738;
+  box-shadow: 0 0 0 3px rgba(216, 255, 79, 0.09);
+}
+
+input[type="range"] {
+  min-height: auto;
+  padding: 0;
+  accent-color: #d8ff4f;
+}
+
+output {
+  float: right;
+  color: #d8ff4f;
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+}
+
+.password-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
+.two-columns,
+.range-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.range-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.button-row {
+  display: flex;
+  gap: 9px;
+  margin-top: 18px;
+}
+
+button.primary,
+button.secondary,
+button.danger {
+  min-height: 41px;
+  padding: 9px 15px;
+  border-radius: 9px;
+  font-weight: 750;
+}
+
+button.primary {
+  border: 1px solid #d8ff4f;
+  color: #101214;
+  background: #d8ff4f;
+}
+
+button.secondary {
+  border: 1px solid #444a4b;
+  color: #e4e5df;
+  background: #25292a;
+}
+
+button.danger {
+  border: 1px solid #653c3a;
+  color: #ffaaa7;
+  background: #2a1d1e;
+}
+
+.text-button,
+.icon-button {
+  padding: 0;
+  border: 0;
+  color: #bdc2bf;
+  background: transparent;
+  font-size: 0.77rem;
+}
+
+.text-button:hover,
+.icon-button:hover {
+  color: #d8ff4f;
+}
+
+.icon-button {
+  min-width: 48px;
+  padding: 0 8px;
+  border: 1px solid #383e3f;
+  border-radius: 9px;
+  background: #1f2324;
+}
+
+.hint {
+  margin: 10px 0 0;
+  color: #7f8686;
+  font-size: 0.74rem;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 0;
+  border: 1px solid #303536;
+  border-radius: 12px;
+  background: #141719;
+}
+
+.metrics div {
+  padding: 16px 18px;
+  border-right: 1px solid #303536;
+}
+
+.metrics div:last-child {
+  border: 0;
+}
+
+.metrics dt {
+  color: #7f8686;
+  font-size: 0.7rem;
+}
+
+.metrics dd {
+  margin: 6px 0 0;
+  color: #f4f2ed;
+  font-size: 1rem;
+  font-weight: 750;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.checkbox input {
+  width: 17px;
+  min-height: 17px;
+  accent-color: #d8ff4f;
+}
+
+.primary-actions button {
+  flex: 1;
+}
+
+code {
+  color: #d8ff4f;
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+}
+
+footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 22px;
+  color: #747a7a;
+  font-size: 0.72rem;
+}
+
+@media (max-width: 820px) {
+  body {
+    min-width: 600px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .run-card {
+    grid-column: auto;
+  }
+}

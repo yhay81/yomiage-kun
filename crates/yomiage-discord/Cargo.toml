@@ -1,0 +1,22 @@
+[package]
+name = "yomiage-discord"
+description = "Discord gateway and voice playback service for Yomiage-kun"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+dashmap.workspace = true
+serde.workspace = true
+serenity.workspace = true
+songbird.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+yomiage-core = { path = "../yomiage-core" }
+
+[lints]
+workspace = true

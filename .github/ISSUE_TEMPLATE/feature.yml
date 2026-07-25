@@ -1,0 +1,29 @@
+name: 機能提案
+description: 新機能や改善案を提案する
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 解決したい問題
+      description: 機能そのものではなく、現在困っている状況を説明してください。
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 提案
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 検討した代替案
+  - type: checkboxes
+    id: model
+    attributes:
+      label: 運用モデル
+      options:
+        - label: 利用者ホスト・local-first の方針に適合することを確認しました
+          required: true

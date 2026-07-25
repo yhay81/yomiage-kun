@@ -1,0 +1,17 @@
+/target/
+**/node_modules/
+**/dist/
+**/.tauri/
+**/src-tauri/gen/schemas/
+.DS_Store
+Thumbs.db
+*.log
+*.pdb
+.env
+.env.*
+!.env.example
+
+# Local application data and downloaded voice models
+data/
+models/
+engines/
