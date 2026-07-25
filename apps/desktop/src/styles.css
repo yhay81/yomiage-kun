@@ -296,17 +296,17 @@ button.danger {
   font-size: 0.77rem;
 }
 
-.text-button:hover,
-.icon-button:hover {
-  color: #d8ff4f;
-}
-
 .icon-button {
   min-width: 48px;
   padding: 0 8px;
   border: 1px solid #383e3f;
   border-radius: 9px;
   background: #1f2324;
+}
+
+.text-button:hover,
+.icon-button:hover {
+  color: #d8ff4f;
 }
 
 .hint {

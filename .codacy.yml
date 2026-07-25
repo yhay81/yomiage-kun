@@ -1,0 +1,7 @@
+---
+engines:
+  tslint:
+    exclude_paths:
+      - "apps/desktop/package-lock.json"
+      - "apps/desktop/package.json"
+      - "apps/desktop/vite.config.ts"
