@@ -16,6 +16,12 @@
 - Guild ごとの有界キュー、テキスト正規化、合成キャッシュ
 - CI、クロスプラットフォーム release workflow、利用者・開発者ドキュメント
 
+### Fixed
+
+- 音声エンジン停止時に内部HTTPエラーを表示せず、起動と再試行を案内
+- WindowsとmacOSでアプリ本体と一体化したカスタムタイトルバーを使用
+- Apple Silicon runnerからmacOS Intel版をビルドする際のRust target不整合
+
 ### Removed
 
 - Python、BouyomiChan、一時ファイル監視に依存する旧実装

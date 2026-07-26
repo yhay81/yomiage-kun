@@ -1,5 +1,31 @@
 export const appMarkup = `
-  <main class="shell">
+  <div class="app-window">
+    <header id="titlebar" class="titlebar" data-tauri-drag-region>
+      <div class="titlebar-product" data-tauri-drag-region>
+        <span class="titlebar-mark" aria-hidden="true" data-tauri-drag-region>
+          <i></i><i></i><i></i>
+        </span>
+        <span data-tauri-drag-region>Yomiage-kun</span>
+        <small data-tauri-drag-region>LOCAL</small>
+      </div>
+      <div class="window-controls">
+        <button id="windowMinimize" class="window-control" type="button"
+          aria-label="最小化" title="最小化">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5h10" /></svg>
+        </button>
+        <button id="windowMaximize" class="window-control" type="button"
+          aria-label="最大化" title="最大化">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3.5" y="3.5" width="9" height="9" rx="1" /></svg>
+        </button>
+        <button id="windowClose" class="window-control close" type="button"
+          aria-label="閉じる" title="閉じる（バックグラウンドで継続）">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 4 8 8m0-8-8 8" /></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="app-scroll">
+      <main class="shell">
     <header class="hero">
       <div class="brand-mark" aria-hidden="true">
         <span></span><span></span><span></span>
@@ -68,6 +94,13 @@ export const appMarkup = `
           エンドポイント
           <input id="endpoint" type="url" spellcheck="false" />
         </label>
+        <div id="engineStatus" class="engine-status idle" role="status" aria-live="polite">
+          <span class="engine-status-dot" aria-hidden="true"></span>
+          <div>
+            <strong id="engineStatusTitle">接続を確認してください</strong>
+            <p id="engineStatusDetail">音声エンジンを起動して「接続テスト」を押します。</p>
+          </div>
+        </div>
         <div class="range-grid">
           <label>速度 <output id="speedValue"></output><input id="speed" type="range" min="0.5" max="2" step="0.05" /></label>
           <label>抑揚 <output id="intonationValue"></output><input id="intonation" type="range" min="0" max="2" step="0.05" /></label>
@@ -107,5 +140,7 @@ export const appMarkup = `
       <span>音声とDiscordトークンは、このPCの外へ保存しません。</span>
       <button id="openDocs" class="text-button" type="button">セットアップガイド ↗</button>
     </footer>
-  </main>
+      </main>
+    </div>
+  </div>
 `;
