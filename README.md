@@ -1,76 +1,67 @@
-# Yomiage-kun
+# 読み上げくん
 
-Discord のテキストチャットを、あなたの Windows / Mac から自然な日本語音声で読み上げるデスクトップアプリです。
+Discordに届いたメッセージを、やさしい日本語の声で読み上げるアプリです。
 
-> [!IMPORTANT]
-> Yomiage-kun は **local-first / bring-your-own-bot** です。開発者が共有 Bot をホストする方式ではありません。利用者が自分の Discord Bot を作り、アプリを起動している間だけ自分の PC から接続します。月額サーバー費用、利用人数による従量課金、トークンの外部預託はありません。
+WindowsとMacで使えます。
 
-## 特長
+[公式サイト](https://yhay81.github.io/yomiage-kun/) ・ [ダウンロード](https://github.com/yhay81/yomiage-kun/releases) ・ [くわしい始め方](docs/getting-started.md)
 
-- Windows 11 と macOS 13 以降のネイティブデスクトップアプリ
-- AivisSpeech / VOICEVOX の高品質なローカル音声合成
-- `/join`、`/leave`、`/skip`、`/status` のシンプルな Discord 操作
-- Discord Bot トークンを Windows Credential Manager / macOS Keychain に保存
-- サーバーごとの有界キュー、メモリ内音声キャッシュ、絵文字・URL・メンションの正規化
-- 音声ファイルをディスクへ書き出さないインメモリ再生
-- ログイン時の自動起動と二重起動防止
-- ウィンドウを閉じても動作を続けるタスクトレイ / メニューバー常駐
-- 運営サーバー不要。Discord と音声エンジン以外へデータを送信しない
+[![読み上げくん](https://yhay81.github.io/yomiage-kun/og.jpg)](https://yhay81.github.io/yomiage-kun/)
 
-## 使い方
+## こんなときに便利です
 
-1. [Releases](https://github.com/yhay81/yomiage-kun/releases) から Windows または macOS 版をインストールします。
-2. AivisSpeech または VOICEVOX をインストールし、エンジンを起動します。
-3. Yomiage-kun の案内から Discord Developer Portal を開き、自分専用の Bot を作ります。
-4. Bot トークンをアプリへ貼り付けて検証・保存し、表示されたボタンからサーバーへ追加します。
-5. アプリで Bot を開始し、Discord のボイスチャンネルに入って `/join` を実行します。
+- ゲーム中に、手を止めずにメッセージを聞きたい
+- 作業中に、仲間からのメッセージを聞き逃したくない
+- 自分の好きな声や話す速さで読み上げてほしい
+- みんなで使うための月額サービスを契約したくない
 
-初回セットアップの画面付き手順は [Discord Bot セットアップ](docs/discord-setup.md) を参照してください。Bot 作成後の日常操作は、音声エンジンと Yomiage-kun を起動して `/join` するだけです。
+読み上げくんは、あなたのパソコンで動きます。
 
-## 仕組み
+開発者が用意した有料の中継サービスは使いません。
 
-```mermaid
-flowchart LR
-    D["Discord<br>メッセージ / 音声"] <-- "Gateway + Voice" --> A["Yomiage-kun<br>Windows / Mac"]
-    A <-- "localhost HTTP" --> T["AivisSpeech<br>または VOICEVOX"]
-    A --> K["OS 資格情報ストア<br>Bot token"]
-```
+## 用意するもの
 
-合成結果はメモリから Discord Voice へ直接渡します。開発者が運営する API、データベース、Bot サーバーはありません。詳しくは [アーキテクチャ](docs/architecture.md) と [セキュリティ](docs/security.md) を参照してください。
+- Windows 11、またはmacOS 13以降のパソコン
+- Discord
+- AivisSpeech、またはVOICEVOX
+- 読み上げくんを追加できるDiscordサーバー
 
-## 対応環境
+AivisSpeechとVOICEVOXは、文章を声に変えてくれる無料のアプリです。どちらか一つを使います。
 
-| 項目 | サポート |
-|---|---|
-| Windows | Windows 11 x64 |
-| macOS | macOS 13 Ventura 以降（Apple Silicon / Intel） |
-| 音声エンジン | AivisSpeech、VOICEVOX（VOICEVOX 互換 HTTP API） |
-| Discord | Bot アカウント、Message Content Intent |
-| Linux | コアライブラリは対応可能。デスクトップ配布は今後対応 |
+## はじめ方
 
-## 開発
+1. [ダウンロードページ](https://github.com/yhay81/yomiage-kun/releases)から、Windows版またはMac版を入れます。
+2. AivisSpeechまたはVOICEVOXを入れて、起動します。
+3. 読み上げくんを開き、画面の案内に沿ってDiscordに「読み上げ役」を作ります。
+4. Discordから発行された合言葉を、読み上げくんに貼り付けます。
+5. 「読み上げを始める」を押し、Discordで `/join` と入力します。
 
-必要なものは Rust 1.97、Node.js 24 LTS、npm、プラットフォーム別の Tauri 2 ビルド環境です。
+Discordの準備は最初の一度だけです。画像付きの手順は[Discordの準備](docs/discord-setup.md)で確認できます。
 
-```powershell
-npm --prefix apps/desktop ci
-cargo test --workspace
-npm --prefix apps/desktop run build
-npm --prefix apps/desktop run tauri build
-```
+## ふだんの使い方
 
-詳細は [開発ガイド](docs/development.md) と [コントリビューションガイド](CONTRIBUTING.md) を参照してください。
+1. AivisSpeechまたはVOICEVOXを起動します。
+2. 読み上げくんで「読み上げを始める」を押します。
+3. Discordの通話に入り、メッセージ欄へ `/join` と入力します。
 
-## ドキュメント
+読み上げを終えるときは `/leave`、今の読み上げを飛ばすときは `/skip` と入力します。
 
-- [はじめに](docs/getting-started.md)
-- [Discord Bot セットアップ](docs/discord-setup.md)
-- [トラブルシューティング](docs/troubleshooting.md)
-- [アーキテクチャ](docs/architecture.md)
-- [セキュリティとプライバシー](docs/security.md)
-- [開発ガイド](docs/development.md)
-- [リリース手順](docs/releasing.md)
-- [旧版からの移行](docs/legacy.md)
+## 安心して使うために
+
+- メッセージから声を作る処理は、あなたのパソコンの中で行います。
+- 読み上げた声を、パソコンへ音声ファイルとして残しません。
+- Discordから発行された合言葉は、WindowsまたはMacの安全な保管場所に保存します。
+- 開発者がメッセージや合言葉を受け取ることはありません。
+
+## 困ったとき
+
+- [うまく動かないときの確認](docs/troubleshooting.md)
+- [Discordの準備](docs/discord-setup.md)
+- [不具合や要望を伝える](https://github.com/yhay81/yomiage-kun/issues)
+
+## 開発に参加したい方へ
+
+アプリの仕組みや開発方法は、[開発者向けの案内](docs/development.md)と[協力方法](CONTRIBUTING.md)をご覧ください。
 
 ## ライセンス
 

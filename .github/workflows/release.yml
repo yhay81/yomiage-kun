@@ -18,13 +18,13 @@ jobs:
         include:
           - name: Windows x64
             platform: windows-latest
-            args: ""
-          - name: macOS Apple Silicon
+            args: --bundles nsis
+          - name: macOS Appleシリコン
             platform: macos-latest
-            args: --target aarch64-apple-darwin
+            args: --bundles dmg --target aarch64-apple-darwin
           - name: macOS Intel
             platform: macos-latest
-            args: --target x86_64-apple-darwin
+            args: --bundles dmg --target x86_64-apple-darwin
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v7
@@ -53,11 +53,15 @@ jobs:
         with:
           projectPath: apps/desktop
           tagName: v__VERSION__
-          releaseName: Yomiage-kun v__VERSION__
+          releaseName: 読み上げくん v__VERSION__
           releaseBody: |
-            ダウンロードと変更点は添付ファイルおよび CHANGELOG を確認してください。
+            お使いのパソコンに合うインストーラをダウンロードしてください。
 
-            公開前に署名、macOS notarization、実機インストールを確認してください。
+            - Windows: `読み上げくん_*_x64-setup.exe`
+            - Appleシリコン搭載Mac: `読み上げくん_*_aarch64.dmg`
+            - Intel搭載Mac: `読み上げくん_*_x64.dmg`
+
+            変更内容は CHANGELOG を確認してください。
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}

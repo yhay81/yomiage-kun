@@ -67,7 +67,7 @@ fn provider_connection_error(settings: &AppSettings, _error: &dyn std::fmt::Disp
     let provider = settings.provider.display_name();
     tracing::warn!(provider, "TTS provider healthcheck failed");
     format!(
-        "{provider}に接続できません。{provider}を起動し、準備完了後に「接続テスト」をもう一度実行してください。エンドポイントの設定も確認してください。"
+        "{provider}に接続できません。{provider}を起動し、準備完了後に「接続を確認」をもう一度押してください。接続先の設定も確認してください。"
     )
 }
 
@@ -112,12 +112,12 @@ async fn test_provider(settings: AppSettings) -> Result<String, String> {
 async fn start_bot(state: State<'_, DesktopState>) -> Result<(), String> {
     let mut bot = state.bot.lock().await;
     if bot.is_some() {
-        return Err("Botはすでに起動しています".into());
+        return Err("ボットはすでに起動しています".into());
     }
     let settings = load_settings(&state.settings_path)?;
     let token = keyring_entry()?
         .get_password()
-        .map_err(|_| "Discord Botトークンが保存されていません".to_owned())?;
+        .map_err(|_| "Discordボットのトークンが保存されていません".to_owned())?;
     let provider: Arc<dyn TtsProvider> = Arc::new(CachedTtsProvider::new(
         build_provider(&settings).map_err(|e| e.to_string())?,
         AUDIO_CACHE_BYTES,
@@ -175,11 +175,11 @@ fn quit_application(app: &AppHandle) {
 }
 
 fn install_tray(app: &mut tauri::App) -> tauri::Result<()> {
-    let show = MenuItem::with_id(app, "show", "Yomiage-kunを開く", true, None::<&str>)?;
+    let show = MenuItem::with_id(app, "show", "読み上げくんを開く", true, None::<&str>)?;
     let quit = MenuItem::with_id(app, "quit", "終了", true, None::<&str>)?;
     let menu = Menu::with_items(app, &[&show, &quit])?;
     let mut tray = TrayIconBuilder::new()
-        .tooltip("Yomiage-kun")
+        .tooltip("読み上げくん")
         .menu(&menu)
         .show_menu_on_left_click(false)
         .on_menu_event(|app, event| match event.id.as_ref() {
@@ -267,7 +267,7 @@ mod tests {
         );
 
         assert!(message.contains("AivisSpeechを起動"));
-        assert!(message.contains("接続テスト"));
+        assert!(message.contains("接続を確認"));
         assert!(!message.contains("error sending request"));
     }
 }

@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Permissions used by the Yomiage-kun desktop window",
+  "description": "読み上げくんのデスクトップ画面で使用する権限",
   "windows": ["main"],
   "permissions": [
     "core:default",

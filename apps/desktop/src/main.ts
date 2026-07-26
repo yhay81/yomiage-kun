@@ -1,12 +1,13 @@
 import { invoke } from "@tauri-apps/api/core";
 import { disable, enable, isEnabled } from "@tauri-apps/plugin-autostart";
 import { openUrl } from "@tauri-apps/plugin-opener";
+import { type BotStatus, renderBotStatus } from "./bot-status";
 import { renderEngineStatus } from "./engine-status";
+import { installSettingsDialog } from "./settings-dialog";
 import { appMarkup } from "./ui";
 import { installWindowControls } from "./window-controls";
 
 type ProviderKind = "aivis_speech" | "voicevox";
-type BotState = "starting" | "running" | "stopping" | "stopped" | "failed";
 
 interface VoiceSettings {
   speaker_id: number;
@@ -25,14 +26,6 @@ interface AppSettings {
   autostart: boolean;
 }
 
-interface BotStatus {
-  state: BotState;
-  username: string | null;
-  guild_count: number;
-  active_sessions: number;
-  last_error: string | null;
-}
-
 interface TokenInfo {
   username: string;
   invite_url: string;
@@ -43,6 +36,7 @@ const app = document.querySelector<HTMLDivElement>("#app");
 if (!app) throw new Error("App root is missing");
 app.innerHTML = appMarkup;
 installWindowControls();
+installSettingsDialog();
 
 const element = <T extends HTMLElement>(id: string): T => {
   const value = document.getElementById(id);
@@ -51,7 +45,6 @@ const element = <T extends HTMLElement>(id: string): T => {
 };
 
 const notice = element<HTMLDivElement>("notice");
-const statusBadge = element<HTMLDivElement>("statusBadge");
 const tokenInput = element<HTMLInputElement>("token");
 const providerSelect = element<HTMLSelectElement>("provider");
 const inviteButton = element<HTMLButtonElement>("inviteBot");
@@ -119,22 +112,7 @@ const persistSettings = async (): Promise<AppSettings> => {
 };
 
 const renderStatus = (status: BotStatus): void => {
-  const labels: Record<BotState, string> = {
-    failed: "エラー",
-    running: "稼働中",
-    starting: "接続中",
-    stopped: "停止",
-    stopping: "停止中",
-  };
-  statusBadge.className = `status-badge ${status.state}`;
-  const statusLabel = statusBadge.querySelector("span");
-  if (statusLabel) statusLabel.textContent = labels[status.state];
-  element("botName").textContent = status.username ?? "—";
-  element("guildCount").textContent = String(status.guild_count);
-  element("sessionCount").textContent = String(status.active_sessions);
-  const hosted = status.state !== "stopped";
-  startButton.disabled = hosted;
-  stopButton.disabled = !hosted;
+  renderBotStatus(status);
   if (status.last_error) message(status.last_error, "error");
 };
 
@@ -168,8 +146,10 @@ element("saveToken").addEventListener("click", async () => {
     inviteUrl = info.invite_url;
     inviteButton.disabled = false;
     tokenInput.value = "";
+    element("tokenSummary").textContent = `${info.username} と連携済みです。`;
+    element("tokenSummary").closest(".readiness-item")?.classList.add("ready");
     element("tokenState").textContent = `${info.username} として検証済みです。`;
-    message("Botトークンを安全に保存しました。", "success");
+    message("ボットのトークンを安全に保存しました。", "success");
   } catch (error) {
     message(errorMessage(error), "error");
   }
@@ -210,7 +190,7 @@ testProviderButton.addEventListener("click", async () => {
     message(errorMessage(error), "error");
   } finally {
     testProviderButton.disabled = false;
-    testProviderButton.textContent = "接続テスト";
+    testProviderButton.textContent = "接続を確認";
   }
 });
 
@@ -227,7 +207,7 @@ startButton.addEventListener("click", async () => {
   try {
     await persistSettings();
     await invoke("start_bot");
-    message("Botを起動しています。Discordでオンラインになるまでお待ちください。", "success");
+    message("読み上げの準備をしています。少しお待ちください。", "success");
     await refreshStatus();
   } catch (error) {
     if (errorMessage(error).includes("に接続できません")) {
@@ -240,7 +220,7 @@ startButton.addEventListener("click", async () => {
 stopButton.addEventListener("click", async () => {
   try {
     await invoke("stop_bot");
-    message("Botを停止しました。", "info");
+    message("読み上げを停止しました。", "info");
     await refreshStatus();
   } catch (error) {
     message(errorMessage(error), "error");
@@ -263,24 +243,28 @@ const initialize = async (): Promise<void> => {
     } catch (error) {
       tokenLookupFailed = true;
       element("tokenState").textContent = "保存済みトークンを現在検証できません。";
+      element("tokenSummary").textContent = "現在確認できません。";
       message(`Discordへの接続を確認してください: ${errorMessage(error)}`, "error");
     }
     if (tokenInfo) {
       inviteUrl = tokenInfo.invite_url;
       inviteButton.disabled = false;
+      element("tokenSummary").textContent = `${tokenInfo.username} と連携済みです。`;
+      element("tokenSummary").closest(".readiness-item")?.classList.add("ready");
       element("tokenState").textContent =
         `${tokenInfo.username} のトークンを保存済みです。`;
     } else if (!tokenLookupFailed) {
       element("tokenState").textContent =
-        "Botトークンはまだ保存されていません。";
+        "ボットのトークンはまだ保存されていません。";
+      element("tokenSummary").textContent = "設定が必要です。";
     }
     if (autostartEnabled && tokenInfo) {
       try {
         await invoke("start_bot");
-        message("自動起動設定によりBotを開始しました。", "success");
+        message("自動起動の設定により読み上げを開始しました。", "success");
       } catch (error) {
         message(
-          `Botを自動起動できませんでした: ${errorMessage(error)}`,
+          `読み上げを自動で開始できませんでした: ${errorMessage(error)}`,
           "error",
         );
       }

@@ -1,6 +1,6 @@
 [package]
 name = "yomiage-desktop"
-description = "Local-first desktop host for the Yomiage-kun Discord bot"
+description = "Discordのメッセージを読み上げるデスクトップアプリ"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

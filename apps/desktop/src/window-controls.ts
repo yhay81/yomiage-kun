@@ -13,6 +13,7 @@ const runWindowAction = (action: () => Promise<void>): void => {
 };
 
 export const installWindowControls = (): void => {
+  if (!("__TAURI_INTERNALS__" in window)) return;
   const appWindow = getCurrentWindow();
   const titlebar = requiredElement<HTMLElement>("titlebar");
 

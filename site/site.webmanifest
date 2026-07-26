@@ -1,0 +1,17 @@
+{
+  "name": "読み上げくん",
+  "short_name": "読み上げくん",
+  "description": "Discordのメッセージを、やさしい日本語の声で読み上げます。",
+  "lang": "ja",
+  "start_url": "./",
+  "display": "browser",
+  "background_color": "#f7f8f3",
+  "theme_color": "#f7f8f3",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
