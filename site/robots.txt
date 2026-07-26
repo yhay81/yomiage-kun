@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://yhay81.github.io/yomiage-kun/sitemap.xml
+Sitemap: https://yomiage.yusuke-hayashi.com/sitemap.xml

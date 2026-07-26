@@ -4,9 +4,9 @@ Discordに届いたメッセージを、やさしい日本語の声で読み上�
 
 WindowsとMacで使えます。月額料金や広告はありません。
 
-[公式サイト](https://yhay81.github.io/yomiage-kun/) ・ [ダウンロード](https://github.com/yhay81/yomiage-kun/releases) ・ [困ったとき](docs/troubleshooting.md)
+[公式サイト](https://yomiage.yusuke-hayashi.com/) ・ [ダウンロード](https://github.com/yhay81/yomiage-kun/releases) ・ [困ったとき](docs/troubleshooting.md)
 
-[![読み上げくん](https://yhay81.github.io/yomiage-kun/og.jpg)](https://yhay81.github.io/yomiage-kun/)
+[![読み上げくん](https://yomiage.yusuke-hayashi.com/og.jpg)](https://yomiage.yusuke-hayashi.com/)
 
 ## こんなときに便利です
 
@@ -109,6 +109,8 @@ Discordの通話で音を流すには、通話へ参加する専用の役が必�
 - 開発者がメッセージや合言葉を受け取ることはありません。
 
 家族やチームで使う場合は、動かすパソコンを一台決めてください。読み上げ中は、そのパソコンと声のアプリを起動しておく必要があります。合言葉をほかの人へ渡す必要はありません。
+
+[プライバシーについて](PRIVACY.md) ・ [Code signing policy](CODE_SIGNING_POLICY.md)
 
 ## 開発に参加したい方へ
 

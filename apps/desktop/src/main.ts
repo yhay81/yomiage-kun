@@ -258,7 +258,7 @@ element("openPortal").addEventListener("click", () =>
   openUrl("https://discord.com/developers/applications"),
 );
 element("openDocs").addEventListener("click", () =>
-  openUrl("https://yhay81.github.io/yomiage-kun/#start"),
+  openUrl("https://yomiage.yusuke-hayashi.com/#start"),
 );
 element("openEngineSite").addEventListener("click", () =>
   openUrl(PROVIDER_SITES[currentProvider()]),
