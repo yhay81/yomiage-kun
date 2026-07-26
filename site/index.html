@@ -31,6 +31,7 @@
       <nav aria-label="ページ内の案内">
         <a href="#features">できること</a>
         <a href="#start">はじめ方</a>
+        <a href="#discord">Discordの準備</a>
         <a href="#questions">よくある質問</a>
       </nav>
     </header>
@@ -39,8 +40,14 @@
       <section class="hero">
         <div class="hero-copy">
           <p class="eyebrow">Windows・Macに対応</p>
-          <h1>Discordのメッセージを、<br><span>やさしい声で。</span></h1>
-          <p class="lead">ゲーム中も、作業中も。届いたメッセージを自然な日本語の声で読み上げます。</p>
+          <h1>
+            <span class="headline-line">Discordのメッセージを、</span>
+            <span class="headline-line accent">やさしい声で。</span>
+          </h1>
+          <p class="lead">
+            <span class="phrase">ゲーム中も、作業中も。</span>
+            <span class="phrase">届いたメッセージを自然な日本語の声で読み上げます。</span>
+          </p>
           <div class="actions">
             <a class="button primary" href="https://github.com/yhay81/yomiage-kun/releases">無料でダウンロード</a>
             <a class="button secondary" href="#start">はじめ方を見る</a>
@@ -48,23 +55,13 @@
           <p class="note">月額料金なし・広告なし。あなたのパソコンで動きます。</p>
         </div>
 
-        <div class="app-preview" aria-label="読み上げくんの画面イメージ">
-          <div class="preview-bar">
-            <span class="preview-brand">
-              <span class="mini-mark" aria-hidden="true"><i></i><i></i><i></i></span>
-              読み上げくん
-            </span>
-            <span class="ready-dot">準備できました</span>
-          </div>
-          <div class="preview-body">
-            <div class="preview-icon">
-              <span class="wave-mark large" aria-hidden="true"><i></i><i></i><i></i></span>
-            </div>
-            <p class="preview-title">読み上げを始めましょう</p>
-            <p class="preview-text">声のアプリを起動したら、<br>このボタンを押すだけです。</p>
-            <span class="preview-button">読み上げを始める</span>
-          </div>
-        </div>
+        <figure class="hero-visual">
+          <img src="hero-listening.jpg" width="1456" height="1092" alt="パソコンに届いたメッセージが、スピーカーから声になる様子" fetchpriority="high">
+          <figcaption>
+            <span class="status-dot" aria-hidden="true"></span>
+            メッセージが届くと、いつもの声で読み上げます
+          </figcaption>
+        </figure>
       </section>
 
       <section class="section" id="features">
@@ -76,7 +73,7 @@
           <article>
             <span class="feature-number">01</span>
             <h3>自然な日本語の声</h3>
-            <p>AivisSpeechやVOICEVOXの好きな声を選べます。速さや音量も調整できます。</p>
+            <p><span class="product-name">AivisSpeech</span>や<span class="product-name">VOICEVOX</span>の好きな声を選べます。速さや音量も調整できます。</p>
           </article>
           <article>
             <span class="feature-number">02</span>
@@ -91,50 +88,189 @@
           <article>
             <span class="feature-number">04</span>
             <h3>WindowsとMacに対応</h3>
-            <p>いつものパソコンに入れて使えます。小さな画面でも迷わない、シンプルな操作です。</p>
+            <p>いつものパソコンに入れて使えます。初回の準備が終われば、ボタン一つで始められます。</p>
           </article>
         </div>
       </section>
 
       <section class="section start-section" id="start">
         <div class="section-heading">
-          <p class="eyebrow">はじめ方</p>
-          <h2>3つの準備で使えます。</h2>
-          <p>Discordの準備が必要なのは、最初の一度だけです。</p>
+          <p class="eyebrow">はじめる前に</p>
+          <h2>準備するものは、2つだけ。</h2>
+          <p>
+            <span class="phrase">文章を声にするアプリと、</span>
+            <span class="phrase">Discordの通話へ参加する「読み上げ役」です。</span>
+            <span class="phrase">どちらも、このページを見ながら準備できます。</span>
+          </p>
         </div>
-        <ol class="steps">
-          <li>
-            <span>1</span>
+
+        <figure class="setup-visual">
+          <img src="setup-guide.jpg" width="1456" height="1092" alt="声のアプリとDiscordの読み上げ役を、安全につなぐ様子" loading="lazy">
+        </figure>
+
+        <article class="guide-block" id="voice">
+          <div class="guide-intro">
+            <span class="guide-index">準備 1</span>
             <div>
               <h3>声のアプリを入れる</h3>
-              <p>AivisSpeechまたはVOICEVOXを入れて、起動します。</p>
+              <p>文章を声に変えるために、<span class="product-name">AivisSpeech</span>か<span class="product-name">VOICEVOX</span>のどちらか一つを使います。</p>
             </div>
-          </li>
-          <li>
-            <span>2</span>
+          </div>
+
+          <div class="choice-grid">
+            <section>
+              <p class="choice-label">迷ったらこちら</p>
+              <h4>AivisSpeech</h4>
+              <p>感情のある自然な声を使いたい方に向いています。</p>
+              <a class="text-link" href="https://aivis-project.com/AivisSpeech">公式ページから入れる <span aria-hidden="true">↗</span></a>
+            </section>
+            <section>
+              <p class="choice-label">声を選んで楽しむ</p>
+              <h4>VOICEVOX</h4>
+              <p>いろいろなキャラクターの声から選びたい方に向いています。</p>
+              <a class="text-link" href="https://voicevox.hiroshiba.jp/">公式ページから入れる <span aria-hidden="true">↗</span></a>
+            </section>
+          </div>
+
+          <div class="instruction">
+            <h4>つなぎ方</h4>
+            <ol class="numbered-list">
+              <li><span>1</span><p>選んだ声のアプリを入れて、起動します。</p></li>
+              <li><span>2</span><p>最初の画面が表示されるまで待ちます。読み上げ中は、このアプリも起動したままにします。</p></li>
+              <li><span>3</span><p>読み上げくんの <b>設定</b> を開き、同じアプリ名を選びます。</p></li>
+              <li><span>4</span><p><b>接続を確認</b> を押します。「音声エンジンに接続できました」と表示されたら <b>この設定を保存</b> を押します。</p></li>
+            </ol>
+            <aside class="help-note">
+              <strong>接続できないとき</strong>
+              <p>声のアプリが完全に起動しているか、読み上げくんで同じアプリ名を選んでいるかを確認します。直らないときは、声のアプリを先に起動してから読み上げくんを開き直してください。</p>
+            </aside>
+          </div>
+        </article>
+
+        <article class="guide-block" id="discord">
+          <div class="guide-intro">
+            <span class="guide-index">準備 2</span>
             <div>
-              <h3>Discordとつなぐ</h3>
-              <p>読み上げくんの案内に沿って、自分専用の「読み上げ役」を作ります。</p>
+              <h3>Discordに「読み上げ役」を作る</h3>
+              <p>Discordの通話で音を流すための、小さな専用アカウントです。別の人のアカウントや、有料サービスは必要ありません。</p>
             </div>
-          </li>
-          <li>
-            <span>3</span>
+          </div>
+
+          <div class="why-card">
+            <span class="helper-icon" aria-hidden="true">♪</span>
             <div>
-              <h3>読み上げを始める</h3>
-              <p>ボタンを押して、Discordで <code>/join</code> と入力すれば準備完了です。</p>
+              <h4>なぜ必要なの？</h4>
+              <p>読み上げ役がDiscordのメッセージを受け取り、あなたと同じ通話へ入って声を流します。作るのは最初の一度だけです。</p>
             </div>
-          </li>
-        </ol>
-        <div class="center-actions">
-          <a class="button primary" href="https://github.com/yhay81/yomiage-kun/releases">読み上げくんをダウンロード</a>
-          <a class="text-link" href="https://github.com/yhay81/yomiage-kun/blob/master/docs/getting-started.md">くわしい手順を見る <span aria-hidden="true">→</span></a>
-        </div>
+          </div>
+
+          <ol class="portal-steps">
+            <li>
+              <span class="step-number">1</span>
+              <div>
+                <h4>Discordのページを開く</h4>
+                <p>読み上げくんの <b>設定</b> から <b>Discordの開発者ページを開く</b> を押します。</p>
+              </div>
+            </li>
+            <li>
+              <span class="step-number">2</span>
+              <div>
+                <h4>読み上げ役を作る</h4>
+                <p><b>New Application</b> を押し、名前を「読み上げくん」にして <b>Create</b> を押します。</p>
+              </div>
+            </li>
+            <li>
+              <span class="step-number">3</span>
+              <div>
+                <h4>メッセージを読む許可を出す</h4>
+                <p>左側の <b>Bot</b> を開き、<b>Message Content Intent</b> をオンにして <b>Save Changes</b> を押します。</p>
+              </div>
+            </li>
+            <li>
+              <span class="step-number">4</span>
+              <div>
+                <h4>専用の合言葉をコピーする</h4>
+                <p>同じページで <b>Reset Token</b> を押し、表示された文字列を <b>Copy</b> でコピーします。</p>
+              </div>
+            </li>
+            <li>
+              <span class="step-number">5</span>
+              <div>
+                <h4>読み上げくんへ保存する</h4>
+                <p><b>ボットのトークン</b> 欄へ貼り付けて <b>確認して保存</b> を押します。</p>
+              </div>
+            </li>
+            <li>
+              <span class="step-number">6</span>
+              <div>
+                <h4>使うサーバーへ追加する</h4>
+                <p><b>サーバーに追加</b> を押し、読み上げたいDiscordサーバーを選んで許可します。</p>
+              </div>
+            </li>
+          </ol>
+
+          <aside class="token-warning">
+            <div class="lock-icon" aria-hidden="true">●</div>
+            <div>
+              <strong>コピーした合言葉は、パスワードと同じです</strong>
+              <p>スクリーンショット、チャット、問い合わせ、GitHubへ貼らないでください。読み上げくんはWindowsまたはMacの安全な保管場所に保存します。</p>
+            </div>
+          </aside>
+
+          <div class="success-check">
+            <div>
+              <p class="choice-label">ここまでできたら準備完了</p>
+              <h4>2か所を確認しましょう</h4>
+            </div>
+            <ul>
+              <li><span aria-hidden="true">✓</span>「ボットのトークンを安全に保存しました」と表示された</li>
+              <li><span aria-hidden="true">✓</span>Discordのメンバー一覧に「読み上げくん」が現れた</li>
+            </ul>
+          </div>
+        </article>
+
+        <section class="everyday">
+          <div class="section-heading">
+            <p class="eyebrow">準備が終わったら</p>
+            <h3>ふだんは、3手順だけ。</h3>
+          </div>
+          <ol class="steps">
+            <li>
+              <span>1</span>
+              <div>
+                <h4>声のアプリを起動</h4>
+                <p><span class="product-name">AivisSpeech</span>または<span class="product-name">VOICEVOX</span>を開きます。</p>
+              </div>
+            </li>
+            <li>
+              <span>2</span>
+              <div>
+                <h4>読み上げを始める</h4>
+                <p>読み上げくんで <b>読み上げを始める</b> を押します。</p>
+              </div>
+            </li>
+            <li>
+              <span>3</span>
+              <div>
+                <h4>通話へ呼ぶ</h4>
+                <p>Discordのメッセージ欄で <code>/join</code> と入力します。</p>
+              </div>
+            </li>
+          </ol>
+          <div class="center-actions">
+            <a class="button primary" href="https://github.com/yhay81/yomiage-kun/releases">読み上げくんをダウンロード</a>
+            <a class="text-link" href="https://github.com/yhay81/yomiage-kun/blob/master/docs/discord-setup.md">Discordの手順をくわしく見る <span aria-hidden="true">→</span></a>
+          </div>
+        </section>
       </section>
 
       <section class="safety">
         <div>
           <p class="eyebrow">安心して使えます</p>
-          <h2>大切なものは、<br>あなたのパソコンに。</h2>
+          <h2>
+            <span class="headline-line">大切なものは、</span>
+            <span class="headline-line">あなたのパソコンに。</span>
+          </h2>
         </div>
         <ul>
           <li><span aria-hidden="true">✓</span>メッセージから声を作る処理は、パソコンの中で行います。</li>
@@ -147,24 +283,36 @@
       <section class="section questions" id="questions">
         <div class="section-heading">
           <p class="eyebrow">よくある質問</p>
-          <h2>気になることに答えます。</h2>
+          <h2>つまずきやすいところに答えます。</h2>
         </div>
         <div class="question-list">
           <details>
+            <summary>AivisSpeechとVOICEVOXは、両方必要ですか？</summary>
+            <p>いいえ。使いたい声に合わせて、どちらか一つだけ入れてください。読み上げ中は、選んだ声のアプリも起動しておきます。</p>
+          </details>
+          <details>
+            <summary>「声のアプリに接続できません」と表示されます</summary>
+            <p>声のアプリが完全に起動しているか、読み上げくんで同じアプリ名を選んでいるかを確認してください。声のアプリを先に起動してから、読み上げくんを開き直すと直ることがあります。</p>
+          </details>
+          <details>
+            <summary>Discordの「読み上げ役」は、別の人のアカウントですか？</summary>
+            <p>いいえ。あなたが管理する専用の小さなアカウントです。ほかの人のログイン情報は使いません。Discordの準備は最初の一度だけです。</p>
+          </details>
+          <details>
+            <summary>コピーした合言葉は、誰かに送りますか？</summary>
+            <p>送りません。読み上げくんへ貼り付けるだけです。パスワードと同じものなので、スクリーンショットや問い合わせにも載せないでください。</p>
+          </details>
+          <details>
+            <summary>Discordで <code>/join</code> が見つかりません</summary>
+            <p>読み上げ役を一度サーバーから外し、読み上げくんの <b>サーバーに追加</b> からもう一度追加してください。数分待ってDiscordを開き直すと表示されることもあります。</p>
+          </details>
+          <details>
+            <summary>家族やチームでも使えますか？</summary>
+            <p>はい。動かすパソコンを一台決めれば使えます。読み上げ中はそのパソコンを起動しておき、合言葉はほかの人へ渡さないでください。</p>
+          </details>
+          <details>
             <summary>本当に無料で使えますか？</summary>
-            <p>はい。読み上げくんに月額料金や広告はありません。AivisSpeechとVOICEVOXも無料で利用できます。</p>
-          </details>
-          <details>
-            <summary>Discordの準備はむずかしいですか？</summary>
-            <p>最初の一度だけ、自分専用の「読み上げ役」を作ります。読み上げくんの画面と画像付きの案内に沿って進められます。</p>
-          </details>
-          <details>
-            <summary>使っている間、パソコンは起動しておく必要がありますか？</summary>
-            <p>はい。読み上げくんはあなたのパソコンで動くため、読み上げ中はパソコンと声のアプリを起動しておいてください。</p>
-          </details>
-          <details>
-            <summary>声が聞こえないときは？</summary>
-            <p>AivisSpeechまたはVOICEVOXが起動しているか、読み上げくんで「読み上げ中」と表示されているかを確認してください。</p>
+            <p>はい。読み上げくんに月額料金や広告はありません。声のアプリも公式ページから無料でダウンロードできます。</p>
           </details>
         </div>
       </section>
