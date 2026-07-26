@@ -40,7 +40,7 @@ serenity = { version = "0.12.5", default-features = false, features = [
     "model",
     "rustls_backend",
 ] }
-sha2 = "0.10.9"
+sha2 = "0.11.0"
 songbird = { version = "0.6.0", features = ["builtin-queue", "serenity"] }
 thiserror = "2.0.17"
 tokio = { version = "1.48.0", features = ["fs", "macros", "rt-multi-thread", "sync", "time"] }
