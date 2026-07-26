@@ -466,7 +466,7 @@ h1 .accent {
   font-size: 1.13rem;
 }
 
-.choice-grid p:not(.choice-label) {
+.choice-grid :where(p:not(.choice-label)) {
   min-height: 3.5rem;
   margin-bottom: 1rem;
   color: var(--muted);
@@ -922,7 +922,7 @@ footer small {
     margin-top: 1.5rem;
   }
 
-  .choice-grid p:not(.choice-label) {
+  .choice-grid :where(p:not(.choice-label)) {
     min-height: 0;
   }
 
