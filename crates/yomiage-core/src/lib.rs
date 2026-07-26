@@ -11,5 +11,6 @@ pub use config::{AppSettings, ProviderKind, VoiceSettings};
 pub use error::{Error, Result};
 pub use text::{NormalizeOptions, normalize_discord_text};
 pub use tts::{
-    AudioData, SynthesisRequest, TtsProvider, VoicevoxCompatibleProvider, build_provider,
+    AudioData, SynthesisRequest, TtsProvider, VoiceOption, VoicevoxCompatibleProvider,
+    build_provider,
 };

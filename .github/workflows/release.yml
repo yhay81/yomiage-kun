@@ -6,62 +6,201 @@ on:
       - "v[0-9]*.[0-9]*.[0-9]*"
   workflow_dispatch:
 
-permissions:
-  contents: write
+permissions: {}
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
-  build:
-    name: Bundle (${{ matrix.name }})
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: Windows x64
-            platform: windows-latest
-            args: --bundles nsis
-          - name: macOS Appleシリコン
-            platform: macos-latest
-            args: --bundles dmg --target aarch64-apple-darwin
-          - name: macOS Intel
-            platform: macos-latest
-            args: --bundles dmg --target x86_64-apple-darwin
-    runs-on: ${{ matrix.platform }}
+  verify-secrets:
+    name: Verify signing credentials
+    runs-on: ubuntu-latest
+    permissions: {}
+    env:
+      TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+      TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+      WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
+      WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+      APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+      APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+      APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+      APPLE_ID: ${{ secrets.APPLE_ID }}
+      APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
     steps:
-      - uses: actions/checkout@v7
-      - name: Install Node.js
-        uses: actions/setup-node@v6
+      - name: Require every signing secret
+        shell: bash
+        run: |
+          missing=()
+          for name in \
+            TAURI_SIGNING_PRIVATE_KEY TAURI_SIGNING_PRIVATE_KEY_PASSWORD \
+            WINDOWS_CERTIFICATE WINDOWS_CERTIFICATE_PASSWORD \
+            APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD APPLE_SIGNING_IDENTITY \
+            APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID
+          do
+            if [ -z "${!name}" ]; then missing+=("$name"); fi
+          done
+          if [ "${#missing[@]}" -gt 0 ]; then
+            printf 'Missing required release secrets: %s\n' "${missing[*]}"
+            exit 1
+          fi
+
+  windows:
+    name: Windows x64
+    needs: verify-secrets
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 24
-          cache: npm
-          cache-dependency-path: apps/desktop/package-lock.json
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@1.97.0
-        with:
-          targets: ${{ startsWith(matrix.platform, 'macos') && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
-      - name: Cache Rust build
-        uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: . -> target
-      - name: Install frontend dependencies
-        run: npm ci
+          package-manager-cache: false
+      - uses: dtolnay/rust-toolchain@35a842e360814583e976785eeda0bd0655cb8e83 # 1.97.0
+      - run: npm ci
         working-directory: apps/desktop
-      - name: Build bundles and draft release
-        uses: tauri-apps/tauri-action@v1
+      - name: Import Windows signing certificate
+        shell: pwsh
+        env:
+          WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
+          WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+        run: |
+          $encoded = Join-Path $env:RUNNER_TEMP "certificate-base64.txt"
+          $pfx = Join-Path $env:RUNNER_TEMP "certificate.pfx"
+          Set-Content -LiteralPath $encoded -Value $env:WINDOWS_CERTIFICATE
+          certutil -decode $encoded $pfx
+          $password = ConvertTo-SecureString $env:WINDOWS_CERTIFICATE_PASSWORD -AsPlainText -Force
+          $certificate = Import-PfxCertificate -FilePath $pfx -CertStoreLocation Cert:\CurrentUser\My -Password $password
+          if (-not $certificate.Thumbprint) { throw "Windows certificate import failed." }
+          $config = @{
+            bundle = @{
+              windows = @{
+                certificateThumbprint = $certificate.Thumbprint
+                digestAlgorithm = "sha256"
+                timestampUrl = "http://timestamp.digicert.com"
+              }
+            }
+          } | ConvertTo-Json -Depth 5
+          Set-Content -LiteralPath (Join-Path $env:RUNNER_TEMP "tauri.windows-signing.json") -Value $config
+      - name: Build signed installer and draft release
+        uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          APPLE_SIGNING_IDENTITY: ${{ startsWith(matrix.platform, 'macos') && '-' || '' }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           projectPath: apps/desktop
           tagName: v__VERSION__
           releaseName: 読み上げくん v__VERSION__
           releaseBody: |
-            お使いのパソコンに合うインストーラをダウンロードしてください。
+            お使いのパソコンに合うインストーラを1つダウンロードしてください。
 
-            - Windows: `読み上げくん_*_x64-setup.exe`
+            - Windows 11: `読み上げくん_*_x64-setup.exe`
             - Appleシリコン搭載Mac: `読み上げくん_*_aarch64.dmg`
             - Intel搭載Mac: `読み上げくん_*_x64.dmg`
 
-            変更内容は CHANGELOG を確認してください。
+            すべてのインストーラは署名済みです。変更内容はCHANGELOGを確認してください。
           releaseDraft: true
           prerelease: false
-          args: ${{ matrix.args }}
+          args: --bundles nsis --config "${{ runner.temp }}\tauri.windows-signing.json"
+      - name: Verify Authenticode signature
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem target -Recurse -Filter "*-setup.exe" | Select-Object -First 1
+          if (-not $installer) { throw "Windows installer was not created." }
+          $signature = Get-AuthenticodeSignature -LiteralPath $installer.FullName
+          if ($signature.Status -ne "Valid") {
+            throw "Invalid Authenticode signature: $($signature.Status)"
+          }
+
+  macos:
+    name: ${{ matrix.name }}
+    needs: verify-secrets
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS Appleシリコン
+            target: aarch64-apple-darwin
+          - name: macOS Intel
+            target: x86_64-apple-darwin
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - uses: dtolnay/rust-toolchain@35a842e360814583e976785eeda0bd0655cb8e83 # 1.97.0
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+      - run: npm ci
+        working-directory: apps/desktop
+      - name: Build signed and notarized app
+        uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        with:
+          projectPath: apps/desktop
+          tagName: v__VERSION__
+          releaseName: 読み上げくん v__VERSION__
+          releaseBody: |
+            お使いのパソコンに合うインストーラを1つダウンロードしてください。
+
+            - Windows 11: `読み上げくん_*_x64-setup.exe`
+            - Appleシリコン搭載Mac: `読み上げくん_*_aarch64.dmg`
+            - Intel搭載Mac: `読み上げくん_*_x64.dmg`
+
+            すべてのインストーラは署名済みです。変更内容はCHANGELOGを確認してください。
+          releaseDraft: true
+          prerelease: false
+          args: --bundles dmg --target ${{ matrix.target }}
+      - name: Verify code signature and notarization
+        shell: bash
+        run: |
+          app_path="$(find target/${{ matrix.target }}/release/bundle/macos -maxdepth 1 -name '*.app' -print -quit)"
+          dmg_path="$(find target/${{ matrix.target }}/release/bundle/dmg -maxdepth 1 -name '*.dmg' -print -quit)"
+          test -n "$app_path"
+          test -n "$dmg_path"
+          codesign --verify --deep --strict --verbose=2 "$app_path"
+          xcrun stapler validate "$dmg_path"
+
+  checksums:
+    name: Publish checksums
+    needs: [windows, macos]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Download release files
+        run: gh release download "${GITHUB_REF_NAME}" --dir release-files
+      - name: Create SHA-256 checksums
+        shell: bash
+        run: |
+          find release-files -maxdepth 1 -type f -print0 \
+            | sort -z \
+            | xargs -0 sha256sum \
+            | sed 's#  release-files/#  #' > SHA256SUMS.txt
+      - name: Add checksums to draft release
+        run: gh release upload "${GITHUB_REF_NAME}" SHA256SUMS.txt --clobber

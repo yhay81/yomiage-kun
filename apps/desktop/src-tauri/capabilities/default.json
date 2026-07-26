@@ -10,8 +10,11 @@
     "core:window:allow-start-dragging",
     "core:window:allow-toggle-maximize",
     "opener:allow-open-url",
+    "opener:allow-open-path",
     "autostart:allow-enable",
     "autostart:allow-disable",
-    "autostart:allow-is-enabled"
+    "autostart:allow-is-enabled",
+    "process:allow-restart",
+    "updater:default"
   ]
 }

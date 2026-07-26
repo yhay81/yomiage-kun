@@ -98,7 +98,11 @@ export const appMarkup = `
 
       <footer>
         <span>トークンと音声は、このパソコンの外へ保存しません。</span>
-        <button id="openDocs" class="text-button" type="button">使い方を見る ↗</button>
+        <div class="footer-actions">
+          <button id="installUpdate" class="text-button update-button" type="button" hidden>更新する</button>
+          <button id="exportDiagnostics" class="text-button" type="button">診断情報を保存</button>
+          <button id="openDocs" class="text-button" type="button">使い方を見る ↗</button>
+        </div>
       </footer>
     </main>
 
@@ -156,14 +160,24 @@ export const appMarkup = `
               </select>
             </label>
             <label>
-              話者番号
-              <input id="speakerId" type="number" min="0" step="1" />
+              声
+              <select id="speakerId" disabled>
+                <option value="1">接続すると声を選べます</option>
+              </select>
             </label>
           </div>
-          <label>
-            接続先
-            <input id="endpoint" type="url" spellcheck="false" />
-          </label>
+          <div class="engine-help">
+            <button id="openEngineSite" class="text-button" type="button">
+              音声合成ソフトを入手する ↗
+            </button>
+          </div>
+          <details class="advanced-settings">
+            <summary>うまくつながらないときの設定</summary>
+            <label>
+              接続先
+              <input id="endpoint" type="url" spellcheck="false" />
+            </label>
+          </details>
           <div id="engineStatus" class="engine-status idle" role="status" aria-live="polite">
             <span class="engine-status-dot" aria-hidden="true"></span>
             <div>
@@ -176,8 +190,10 @@ export const appMarkup = `
             <label>抑揚 <output id="intonationValue"></output><input id="intonation" type="range" min="0" max="2" step="0.05" /></label>
             <label>音量 <output id="volumeValue"></output><input id="volume" type="range" min="0" max="2" step="0.05" /></label>
           </div>
-          <div class="button-row">
+          <div class="button-row engine-actions">
+            <button id="detectProvider" class="secondary" type="button">自動で見つける</button>
             <button id="testProvider" class="secondary" type="button">接続を確認</button>
+            <button id="previewVoice" class="secondary" type="button" disabled>この声を試す</button>
             <button id="saveSettings" class="secondary" type="button">この設定を保存</button>
           </div>
         </section>

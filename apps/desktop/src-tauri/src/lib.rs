@@ -1,4 +1,9 @@
-use std::{fs, path::PathBuf, sync::Arc};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+    sync::Arc,
+    time::{SystemTime, UNIX_EPOCH},
+};
 
 use directories::ProjectDirs;
 use keyring::Entry;
@@ -9,7 +14,10 @@ use tauri::{
     menu::{Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
 };
-use yomiage_core::{AppSettings, CachedTtsProvider, TtsProvider, build_provider};
+use yomiage_core::{
+    AppSettings, AudioData, CachedTtsProvider, ProviderKind, SynthesisRequest, TtsProvider,
+    VoiceOption, build_provider,
+};
 use yomiage_discord::{BotConfig, BotService, BotStatus, validate_token};
 
 const KEYRING_SERVICE: &str = "io.github.yhay81.yomiagekun";
@@ -20,12 +28,40 @@ const AUDIO_CACHE_BYTES: u64 = 128 * 1024 * 1024;
 struct DesktopState {
     bot: Mutex<Option<BotService>>,
     settings_path: PathBuf,
+    diagnostics_dir: PathBuf,
+    log_dir: PathBuf,
+    _log_guard: tracing_appender::non_blocking::WorkerGuard,
 }
 
 #[derive(Debug, Serialize)]
 struct TokenInfo {
     username: String,
     invite_url: String,
+}
+
+#[derive(Debug, Serialize)]
+struct EngineInfo {
+    provider: ProviderKind,
+    endpoint: String,
+    version: String,
+    voices: Vec<VoiceOption>,
+}
+
+#[derive(Debug, Serialize)]
+struct DiagnosticExport {
+    path: String,
+}
+
+#[derive(Debug, Serialize)]
+struct DiagnosticReport {
+    application: &'static str,
+    version: &'static str,
+    operating_system: &'static str,
+    architecture: &'static str,
+    settings: AppSettings,
+    bot: BotStatus,
+    log_directory: String,
+    note: &'static str,
 }
 
 fn keyring_entry() -> Result<Entry, String> {
@@ -71,6 +107,19 @@ fn provider_connection_error(settings: &AppSettings, _error: &dyn std::fmt::Disp
     )
 }
 
+async fn inspect_engine(settings: AppSettings) -> Result<EngineInfo, String> {
+    let provider = build_provider(&settings).map_err(|error| error.to_string())?;
+    let version = provider
+        .healthcheck()
+        .await
+        .map_err(|error| provider_connection_error(&settings, &error))?;
+    let voices = provider
+        .voices()
+        .await
+        .map_err(|error| format!("声の一覧を取得できませんでした: {error}"))?;
+    Ok(EngineInfo { provider: settings.provider, endpoint: settings.endpoint, version, voices })
+}
+
 #[tauri::command]
 #[allow(clippy::needless_pass_by_value)] // Tauri commands deserialize owned extractor values.
 fn get_settings(state: State<'_, DesktopState>) -> Result<AppSettings, String> {
@@ -103,9 +152,70 @@ async fn saved_token_info() -> Result<Option<TokenInfo>, String> {
 }
 
 #[tauri::command]
-async fn test_provider(settings: AppSettings) -> Result<String, String> {
+async fn test_provider(settings: AppSettings) -> Result<EngineInfo, String> {
+    inspect_engine(settings).await
+}
+
+#[tauri::command]
+async fn detect_providers() -> Vec<EngineInfo> {
+    let settings_for = |provider: ProviderKind| AppSettings {
+        provider,
+        endpoint: provider.default_endpoint().into(),
+        ..AppSettings::default()
+    };
+    let (aivis, voicevox) = tokio::join!(
+        inspect_engine(settings_for(ProviderKind::AivisSpeech)),
+        inspect_engine(settings_for(ProviderKind::Voicevox))
+    );
+    [aivis, voicevox]
+        .into_iter()
+        .filter_map(|result| match result {
+            Ok(info) => Some(info),
+            Err(error) => {
+                tracing::debug!(%error, "engine not detected");
+                None
+            }
+        })
+        .collect()
+}
+
+#[tauri::command]
+async fn preview_voice(settings: AppSettings) -> Result<tauri::ipc::Response, String> {
     let provider = build_provider(&settings).map_err(|error| error.to_string())?;
-    provider.healthcheck().await.map_err(|error| provider_connection_error(&settings, &error))
+    let AudioData { bytes, .. } = provider
+        .synthesize(&SynthesisRequest {
+            text: "こんにちは。読み上げくんです。この声で読み上げます。".into(),
+            voice: settings.voice,
+        })
+        .await
+        .map_err(|error| format!("声を試せませんでした: {error}"))?;
+    Ok(tauri::ipc::Response::new(bytes.to_vec()))
+}
+
+#[tauri::command]
+async fn export_diagnostics(state: State<'_, DesktopState>) -> Result<DiagnosticExport, String> {
+    fs::create_dir_all(&state.diagnostics_dir).map_err(|error| error.to_string())?;
+    let timestamp =
+        SystemTime::now().duration_since(UNIX_EPOCH).map_err(|error| error.to_string())?.as_secs();
+    let path = state.diagnostics_dir.join(format!("読み上げくん-診断-{timestamp}.json"));
+    let settings = load_settings(&state.settings_path)?;
+    let bot = match state.bot.lock().await.as_ref() {
+        Some(service) => service.snapshot().await,
+        None => BotStatus::default(),
+    };
+    let report = DiagnosticReport {
+        application: "読み上げくん",
+        version: env!("CARGO_PKG_VERSION"),
+        operating_system: std::env::consts::OS,
+        architecture: std::env::consts::ARCH,
+        settings,
+        bot,
+        log_directory: state.log_dir.to_string_lossy().into_owned(),
+        note: "Discordボットのトークンと読み上げた文章は含まれていません。",
+    };
+    let source = serde_json::to_string_pretty(&report).map_err(|error| error.to_string())?;
+    fs::write(&path, source).map_err(|error| error.to_string())?;
+    Ok(DiagnosticExport { path: path.to_string_lossy().into_owned() })
 }
 
 #[tauri::command]
@@ -204,6 +314,23 @@ fn install_tray(app: &mut tauri::App) -> tauri::Result<()> {
     Ok(())
 }
 
+fn setup_logging(log_dir: &Path) -> tracing_appender::non_blocking::WorkerGuard {
+    fs::create_dir_all(log_dir).expect("log directory should be writable");
+    let file_appender = tracing_appender::rolling::daily(log_dir, "yomiage-kun.log");
+    let (writer, guard) = tracing_appender::non_blocking(file_appender);
+    tracing_subscriber::fmt()
+        .with_env_filter(
+            tracing_subscriber::EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| "yomiage=info".into()),
+        )
+        .with_ansi(false)
+        .with_target(false)
+        .with_writer(writer)
+        .compact()
+        .init();
+    guard
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 /// Starts the native desktop application and its Tauri event loop.
 ///
@@ -211,24 +338,26 @@ fn install_tray(app: &mut tauri::App) -> tauri::Result<()> {
 ///
 /// Panics only when the OS does not provide an application data directory or Tauri cannot start.
 pub fn run() {
-    tracing_subscriber::fmt()
-        .with_env_filter(
-            tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "yomiage=info".into()),
-        )
-        .with_target(false)
-        .compact()
-        .init();
-
     let project_dirs =
         ProjectDirs::from("io.github", "yhay81", "Yomiage-kun").expect("valid project directory");
     let settings_path = project_dirs.config_dir().join("settings.json");
+    let log_dir = project_dirs.data_local_dir().join("logs");
+    let diagnostics_dir = project_dirs.data_local_dir().join("diagnostics");
+    let log_guard = setup_logging(&log_dir);
 
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, _, _| show_main_window(app)))
         .plugin(tauri_plugin_autostart::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
-        .manage(DesktopState { bot: Mutex::new(None), settings_path })
+        .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .manage(DesktopState {
+            bot: Mutex::new(None),
+            settings_path,
+            diagnostics_dir,
+            log_dir,
+            _log_guard: log_guard,
+        })
         .setup(|app| {
             install_tray(app)?;
             Ok(())
@@ -247,6 +376,9 @@ pub fn run() {
             save_and_validate_token,
             saved_token_info,
             test_provider,
+            detect_providers,
+            preview_voice,
+            export_diagnostics,
             start_bot,
             stop_bot,
             bot_status,

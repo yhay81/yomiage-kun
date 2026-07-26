@@ -543,6 +543,24 @@ footer {
   font-size: 0.68rem;
 }
 
+.footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.update-button {
+  color: #fff;
+  padding: 5px 9px;
+  border-radius: 8px;
+  background: #4c8b62;
+}
+
+.update-button:hover {
+  color: #fff;
+  background: #3f7e55;
+}
+
 .text-button,
 .icon-button,
 .dialog-close {
@@ -649,6 +667,30 @@ footer {
 
 .portal-button {
   margin-top: 20px;
+}
+
+.engine-help {
+  margin-top: 9px;
+  text-align: right;
+}
+
+.advanced-settings {
+  margin-top: 9px;
+  padding: 8px 10px;
+  border: 1px solid #e0e5df;
+  border-radius: 9px;
+  color: #748078;
+  background: #f8faf7;
+  font-size: 0.66rem;
+}
+
+.advanced-settings summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.advanced-settings label {
+  margin-top: 9px;
 }
 
 label {
@@ -773,6 +815,15 @@ output {
   display: flex;
   gap: 8px;
   margin-top: 14px;
+}
+
+.engine-actions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.engine-actions button {
+  min-width: 0;
 }
 
 .hint {

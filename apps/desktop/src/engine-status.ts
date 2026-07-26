@@ -9,6 +9,7 @@ const requiredElement = <T extends HTMLElement>(id: string): T => {
 export const renderEngineStatus = (
   state: EngineState,
   providerName: string,
+  readyDetail = "読み上げを開始できます。",
 ): void => {
   const status = requiredElement<HTMLDivElement>("engineStatus");
   const title = requiredElement<HTMLElement>("engineStatusTitle");
@@ -24,7 +25,7 @@ export const renderEngineStatus = (
     summary.textContent = "接続を確認しています…";
   } else if (state === "ready") {
     title.textContent = `${providerName}へ接続済み`;
-    detail.textContent = "読み上げを開始できます。";
+    detail.textContent = readyDetail;
     summary.textContent = `${providerName}を使用できます。`;
   } else if (state === "unavailable") {
     title.textContent = `${providerName}が見つかりません`;
