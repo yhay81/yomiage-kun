@@ -1,0 +1,43 @@
+# セキュリティとプライバシー
+
+## データフロー
+
+Yomiage-kun が通信する相手は次の 3 種類です。
+
+1. Discord Gateway / REST / Voice
+2. 利用者が設定した AivisSpeech または VOICEVOX エンドポイント
+3. UI から明示的に開く Discord Developer Portal / GitHub ドキュメント
+
+公式の分析 API、広告 SDK、クラッシュ収集、開発者運営サーバーはありません。
+
+## Bot トークン
+
+Bot トークンは OS の資格情報ストアへ保存します。
+
+- Windows: Credential Manager
+- macOS: Keychain
+
+トークンは設定 JSON、ログ、音声キャッシュ、Git リポジトリへ保存しません。トークン入力後は Discord API で Bot アカウントであることを検証します。通常ユーザーのトークンは拒否します。
+
+## Discord 権限
+
+招待 URL は View Channels、Send Messages、Connect、Speak だけを要求します。Administrator は不要です。投稿本文の受信には Developer Portal で Message Content Intent を有効にする必要があります。
+
+Bot が読み上げるのは、`/join` を実行したサーバーとテキストチャンネルの投稿だけです。Bot 自身の投稿と DM は無視します。
+
+## 音声と投稿本文
+
+本文はメモリ上で正規化され、設定した TTS エンドポイントへ送信されます。標準設定は `127.0.0.1` のローカルエンジンです。リモート URL を設定した場合、本文はその運営者へ送信されるため、利用者自身で信頼性と利用規約を確認してください。
+
+合成音声はメモリ内で Discord Voice へ渡し、ディスクへ保存しません。プロセス内キャッシュはアプリ終了時に消去されます。
+
+## 脅威モデル上の注意
+
+- PC のログインセッションが侵害されている場合、OS 資格情報ストアだけでは保護できません。
+- Bot トークンが漏れた場合は Developer Portal で Reset Token し、アプリへ新しい値を保存してください。
+- 不特定多数が投稿できるチャンネルでは、読み上げ荒らしを Discord のチャンネル権限で制限してください。
+- リモート TTS エンドポイントを使う場合は HTTPS を使用してください。
+
+## 脆弱性報告
+
+公開 Issue へ秘密情報や再現用トークンを投稿しないでください。報告方法はリポジトリの [Security Policy](../SECURITY.md) を参照してください。
