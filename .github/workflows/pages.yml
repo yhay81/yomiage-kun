@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: ソースコードを取得
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: GitHub Pagesを準備
         uses: actions/configure-pages@v5
