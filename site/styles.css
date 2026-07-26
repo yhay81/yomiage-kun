@@ -326,7 +326,7 @@ h1 .accent {
   letter-spacing: -0.035em;
 }
 
-.section-heading > p:last-child {
+.section-heading > :where(p:last-child) {
   color: var(--muted);
 }
 
