@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Yomiage-kun",
+  "productName": "読み上げくん",
   "version": "0.1.0",
   "identifier": "io.github.yhay81.yomiagekun",
   "build": {
@@ -12,11 +12,11 @@
   "app": {
     "windows": [
       {
-        "title": "Yomiage-kun",
-        "width": 1060,
-        "height": 820,
-        "minWidth": 720,
-        "minHeight": 680,
+        "title": "読み上げくん",
+        "width": 980,
+        "height": 720,
+        "minWidth": 860,
+        "minHeight": 660,
         "center": true,
         "resizable": true,
         "decorations": false,
@@ -31,7 +31,7 @@
     "active": true,
     "targets": "all",
     "category": "Utility",
-    "shortDescription": "Local-first Japanese TTS bot for Discord",
+    "shortDescription": "Discordのメッセージを読み上げるデスクトップアプリ",
     "longDescription": "Discordの日本語チャットを、あなたのWindowsまたはMacから低遅延で読み上げます。",
     "copyright": "Copyright © 2018-2026 Yusuke Hayashi",
     "icon": [
@@ -45,6 +45,18 @@
       "minimumSystemVersion": "13.0"
     },
     "windows": {
+      "wix": {
+        "upgradeCode": "d73867f9-1519-5db5-8916-d27dae1f6196",
+        "language": "ja-JP"
+      },
+      "nsis": {
+        "languages": [
+          "Japanese"
+        ],
+        "displayLanguageSelector": false,
+        "installMode": "currentUser",
+        "installerHooks": "./windows/installer-hooks.nsh"
+      },
       "webviewInstallMode": {
         "type": "downloadBootstrapper",
         "silent": true

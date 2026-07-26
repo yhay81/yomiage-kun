@@ -1,0 +1,53 @@
+name: 公式サイトを公開
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "site/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: 公開するファイルを準備
+    runs-on: ubuntu-latest
+    steps:
+      - name: ソースコードを取得
+        uses: actions/checkout@v6
+
+      - name: GitHub Pagesを準備
+        uses: actions/configure-pages@v5
+
+      - name: 共有画像を準備
+        shell: bash
+        run: |
+          base64 --decode site/og.jpg.base64 > site/og.jpg
+          rm site/og.jpg.base64
+
+      - name: 公式サイトをまとめる
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+
+  deploy:
+    name: 公式サイトを公開
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: GitHub Pagesへ公開
+        id: deployment
+        uses: actions/deploy-pages@v4

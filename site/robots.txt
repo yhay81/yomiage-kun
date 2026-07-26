@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://yhay81.github.io/yomiage-kun/sitemap.xml

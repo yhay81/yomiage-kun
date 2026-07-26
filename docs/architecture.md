@@ -26,7 +26,7 @@ Tauri 2 の薄い UI と Rust のアプリケーションコアに分離して�
 sequenceDiagram
     participant U as Discord user
     participant D as Discord Gateway
-    participant Y as Yomiage-kun
+    participant Y as 読み上げくん
     participant T as Local TTS
     participant V as Discord Voice
     U->>D: text message

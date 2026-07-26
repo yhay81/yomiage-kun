@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="読み上げくん">
+  <rect width="128" height="128" rx="30" fill="#215a39"/>
+  <rect x="32" y="45" width="12" height="38" rx="6" fill="#b8e86e"/>
+  <rect x="58" y="29" width="12" height="70" rx="6" fill="#b8e86e"/>
+  <rect x="84" y="40" width="12" height="48" rx="6" fill="#b8e86e"/>
+</svg>

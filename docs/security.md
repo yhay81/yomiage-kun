@@ -2,7 +2,7 @@
 
 ## データフロー
 
-Yomiage-kun が通信する相手は次の 3 種類です。
+読み上げくんが通信する相手は次の3種類です。
 
 1. Discord Gateway / REST / Voice
 2. 利用者が設定した AivisSpeech または VOICEVOX エンドポイント
