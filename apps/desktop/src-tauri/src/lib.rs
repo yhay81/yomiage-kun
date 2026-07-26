@@ -63,6 +63,14 @@ async fn token_info(token: &str) -> Result<TokenInfo, String> {
     Ok(TokenInfo { username, invite_url: invite_url(application_id) })
 }
 
+fn provider_connection_error(settings: &AppSettings, _error: &dyn std::fmt::Display) -> String {
+    let provider = settings.provider.display_name();
+    tracing::warn!(provider, "TTS provider healthcheck failed");
+    format!(
+        "{provider}に接続できません。{provider}を起動し、準備完了後に「接続テスト」をもう一度実行してください。エンドポイントの設定も確認してください。"
+    )
+}
+
 #[tauri::command]
 #[allow(clippy::needless_pass_by_value)] // Tauri commands deserialize owned extractor values.
 fn get_settings(state: State<'_, DesktopState>) -> Result<AppSettings, String> {
@@ -97,7 +105,7 @@ async fn saved_token_info() -> Result<Option<TokenInfo>, String> {
 #[tauri::command]
 async fn test_provider(settings: AppSettings) -> Result<String, String> {
     let provider = build_provider(&settings).map_err(|error| error.to_string())?;
-    provider.healthcheck().await.map_err(|error| error.to_string())
+    provider.healthcheck().await.map_err(|error| provider_connection_error(&settings, &error))
 }
 
 #[tauri::command]
@@ -114,10 +122,7 @@ async fn start_bot(state: State<'_, DesktopState>) -> Result<(), String> {
         build_provider(&settings).map_err(|e| e.to_string())?,
         AUDIO_CACHE_BYTES,
     ));
-    provider
-        .healthcheck()
-        .await
-        .map_err(|error| format!("Bot起動前のTTS接続テストに失敗しました: {error}"))?;
+    provider.healthcheck().await.map_err(|error| provider_connection_error(&settings, &error))?;
     let service = BotService::start(
         BotConfig {
             token,
@@ -248,4 +253,21 @@ pub fn run() {
         ])
         .run(tauri::generate_context!())
         .expect("failed to run Yomiage-kun");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn provider_error_is_actionable_and_hides_transport_details() {
+        let message = provider_connection_error(
+            &AppSettings::default(),
+            &"error sending request for url (http://127.0.0.1:10101/version)",
+        );
+
+        assert!(message.contains("AivisSpeechを起動"));
+        assert!(message.contains("接続テスト"));
+        assert!(!message.contains("error sending request"));
+    }
 }

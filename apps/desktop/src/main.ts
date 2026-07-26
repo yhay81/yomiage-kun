@@ -1,7 +1,9 @@
 import { invoke } from "@tauri-apps/api/core";
 import { disable, enable, isEnabled } from "@tauri-apps/plugin-autostart";
 import { openUrl } from "@tauri-apps/plugin-opener";
+import { renderEngineStatus } from "./engine-status";
 import { appMarkup } from "./ui";
+import { installWindowControls } from "./window-controls";
 
 type ProviderKind = "aivis_speech" | "voicevox";
 type BotState = "starting" | "running" | "stopping" | "stopped" | "failed";
@@ -40,6 +42,7 @@ const STATUS_REFRESH_MS = 2_000;
 const app = document.querySelector<HTMLDivElement>("#app");
 if (!app) throw new Error("App root is missing");
 app.innerHTML = appMarkup;
+installWindowControls();
 
 const element = <T extends HTMLElement>(id: string): T => {
   const value = document.getElementById(id);
@@ -50,9 +53,11 @@ const element = <T extends HTMLElement>(id: string): T => {
 const notice = element<HTMLDivElement>("notice");
 const statusBadge = element<HTMLDivElement>("statusBadge");
 const tokenInput = element<HTMLInputElement>("token");
+const providerSelect = element<HTMLSelectElement>("provider");
 const inviteButton = element<HTMLButtonElement>("inviteBot");
 const startButton = element<HTMLButtonElement>("startBot");
 const stopButton = element<HTMLButtonElement>("stopBot");
+const testProviderButton = element<HTMLButtonElement>("testProvider");
 let inviteUrl = "";
 
 const message = (
@@ -66,6 +71,9 @@ const message = (
 
 const errorMessage = (error: unknown): string =>
   error instanceof Error ? error.message : String(error);
+
+const currentProviderName = (): string =>
+  providerSelect.selectedOptions.item(0)?.textContent ?? "音声エンジン";
 
 const readSettings = (): AppSettings => ({
   autostart: element<HTMLInputElement>("autostart").checked,
@@ -93,13 +101,9 @@ const updateRangeOutputs = (): void => {
 const setSettings = (settings: AppSettings): void => {
   element<HTMLSelectElement>("provider").value = settings.provider;
   element<HTMLInputElement>("endpoint").value = settings.endpoint;
-  element<HTMLInputElement>("speakerId").value = String(
-    settings.voice.speaker_id,
-  );
+  element<HTMLInputElement>("speakerId").value = String(settings.voice.speaker_id);
   element<HTMLInputElement>("speed").value = String(settings.voice.speed);
-  element<HTMLInputElement>("intonation").value = String(
-    settings.voice.intonation,
-  );
+  element<HTMLInputElement>("intonation").value = String(settings.voice.intonation);
   element<HTMLInputElement>("volume").value = String(settings.voice.volume);
   updateRangeOutputs();
 };
@@ -175,25 +179,38 @@ inviteButton.addEventListener("click", () => {
   if (inviteUrl) void openUrl(inviteUrl);
 });
 
-element("provider").addEventListener("change", (event) => {
+providerSelect.addEventListener("change", (event) => {
   const provider = (event.target as HTMLSelectElement).value as ProviderKind;
   element<HTMLInputElement>("endpoint").value =
     provider === "aivis_speech"
       ? "http://127.0.0.1:10101"
       : "http://127.0.0.1:50021";
+  renderEngineStatus("idle", currentProviderName());
+});
+
+element("endpoint").addEventListener("input", () => {
+  renderEngineStatus("idle", currentProviderName());
 });
 
 for (const name of ["speed", "intonation", "volume"]) {
   element(name).addEventListener("input", updateRangeOutputs);
 }
 
-element("testProvider").addEventListener("click", async () => {
+testProviderButton.addEventListener("click", async () => {
+  testProviderButton.disabled = true;
+  testProviderButton.textContent = "確認中…";
+  renderEngineStatus("testing", currentProviderName());
   try {
     const settings = await persistSettings();
     const result = await invoke<string>("test_provider", { settings });
+    renderEngineStatus("ready", currentProviderName());
     message(`音声エンジンに接続できました（${result}）。`, "success");
   } catch (error) {
+    renderEngineStatus("unavailable", currentProviderName());
     message(errorMessage(error), "error");
+  } finally {
+    testProviderButton.disabled = false;
+    testProviderButton.textContent = "接続テスト";
   }
 });
 
@@ -210,12 +227,12 @@ startButton.addEventListener("click", async () => {
   try {
     await persistSettings();
     await invoke("start_bot");
-    message(
-      "Botを起動しています。Discordでオンラインになるまでお待ちください。",
-      "success",
-    );
+    message("Botを起動しています。Discordでオンラインになるまでお待ちください。", "success");
     await refreshStatus();
   } catch (error) {
+    if (errorMessage(error).includes("に接続できません")) {
+      renderEngineStatus("unavailable", currentProviderName());
+    }
     message(errorMessage(error), "error");
   }
 });
@@ -237,6 +254,7 @@ const initialize = async (): Promise<void> => {
       isEnabled(),
     ]);
     setSettings(settings);
+    renderEngineStatus("idle", currentProviderName());
     element<HTMLInputElement>("autostart").checked = autostartEnabled;
     let tokenInfo: TokenInfo | null = null;
     let tokenLookupFailed = false;

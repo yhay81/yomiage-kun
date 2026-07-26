@@ -20,6 +20,14 @@ impl ProviderKind {
             Self::Voicevox => "http://127.0.0.1:50021",
         }
     }
+
+    #[must_use]
+    pub const fn display_name(self) -> &'static str {
+        match self {
+            Self::AivisSpeech => "AivisSpeech",
+            Self::Voicevox => "VOICEVOX",
+        }
+    }
 }
 
 /// Voice controls shared by VOICEVOX-compatible engines.
@@ -124,6 +132,14 @@ mod tests {
     #[test]
     fn defaults_are_valid() {
         AppSettings::default().validate().unwrap();
+    }
+
+    #[test]
+    fn provider_metadata_matches_each_engine() {
+        assert_eq!(ProviderKind::AivisSpeech.display_name(), "AivisSpeech");
+        assert_eq!(ProviderKind::AivisSpeech.default_endpoint(), "http://127.0.0.1:10101");
+        assert_eq!(ProviderKind::Voicevox.display_name(), "VOICEVOX");
+        assert_eq!(ProviderKind::Voicevox.default_endpoint(), "http://127.0.0.1:50021");
     }
 
     #[test]
