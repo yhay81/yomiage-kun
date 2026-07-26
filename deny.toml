@@ -1,0 +1,49 @@
+[graph]
+targets = [
+    "x86_64-pc-windows-msvc",
+    "aarch64-apple-darwin",
+    "x86_64-apple-darwin",
+]
+
+[advisories]
+ignore = [
+    # Songbird 0.6.0 / DAVEの最新公開版が移行待ち。代替版が公開されたら除去する。
+    "RUSTSEC-2024-0384",
+    "RUSTSEC-2024-0388",
+    # Tauri 2.11.5のURLパターン解析が使う間接依存。安全な上流更新はまだない。
+    "RUSTSEC-2025-0075",
+    "RUSTSEC-2025-0080",
+    "RUSTSEC-2025-0081",
+    "RUSTSEC-2025-0098",
+    "RUSTSEC-2025-0100",
+    # libcrux-sha3はdigest traitだけを使い、問題のあるselect/swap APIを呼ばない。
+    "RUSTSEC-2026-0212",
+    # HPKEが使うSHAKEは一括呼び出しで、出力長も32/64バイトのため該当条件を満たさない。
+    "RUSTSEC-2026-0207",
+    "RUSTSEC-2026-0208",
+]
+
+[licenses]
+confidence-threshold = 0.8
+allow = [
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "BSL-1.0",
+    "CC0-1.0",
+    "ISC",
+    "MIT",
+    "MPL-2.0",
+    "Unicode-3.0",
+    "Unlicense",
+    "Zlib",
+]
+
+[licenses.private]
+ignore = true
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]

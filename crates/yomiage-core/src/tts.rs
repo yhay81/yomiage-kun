@@ -3,6 +3,7 @@ use std::{sync::Arc, time::Duration};
 use async_trait::async_trait;
 use bytes::Bytes;
 use reqwest::Client;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use url::Url;
 
@@ -20,10 +21,44 @@ pub struct AudioData {
     pub content_type: String,
 }
 
+/// A human-readable voice exposed by a VOICEVOX-compatible engine.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct VoiceOption {
+    pub id: i64,
+    pub name: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct EngineSpeaker {
+    name: String,
+    styles: Vec<EngineStyle>,
+}
+
+#[derive(Debug, Deserialize)]
+struct EngineStyle {
+    id: i64,
+    name: String,
+}
+
+fn voice_options(speakers: Vec<EngineSpeaker>) -> Vec<VoiceOption> {
+    let mut voices = speakers
+        .into_iter()
+        .flat_map(|speaker| {
+            speaker.styles.into_iter().map(move |style| VoiceOption {
+                id: style.id,
+                name: format!("{}（{}）", speaker.name, style.name),
+            })
+        })
+        .collect::<Vec<_>>();
+    voices.sort_by(|left, right| left.name.cmp(&right.name).then(left.id.cmp(&right.id)));
+    voices
+}
+
 #[async_trait]
 pub trait TtsProvider: Send + Sync {
     fn name(&self) -> &'static str;
     async fn healthcheck(&self) -> Result<String>;
+    async fn voices(&self) -> Result<Vec<VoiceOption>>;
     async fn synthesize(&self, request: &SynthesisRequest) -> Result<AudioData>;
 }
 
@@ -85,6 +120,21 @@ impl TtsProvider for VoicevoxCompatibleProvider {
         Ok(version)
     }
 
+    async fn voices(&self) -> Result<Vec<VoiceOption>> {
+        let speakers: Vec<EngineSpeaker> = self
+            .client
+            .get(self.url("speakers")?)
+            .send()
+            .await
+            .map_err(|error| Error::ProviderUnavailable(error.to_string()))?
+            .error_for_status()
+            .map_err(|error| Error::ProviderResponse(error.to_string()))?
+            .json()
+            .await?;
+
+        Ok(voice_options(speakers))
+    }
+
     async fn synthesize(&self, request: &SynthesisRequest) -> Result<AudioData> {
         if request.text.trim().is_empty() {
             return Err(Error::EmptyText);
@@ -143,4 +193,32 @@ pub fn build_provider(settings: &AppSettings) -> Result<Arc<dyn TtsProvider>> {
         crate::ProviderKind::Voicevox => "VOICEVOX",
     };
     Ok(Arc::new(VoicevoxCompatibleProvider::new(name, &settings.endpoint)?))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn endpoint_is_normalized_for_api_paths() {
+        let provider =
+            VoicevoxCompatibleProvider::new("VOICEVOX", "http://127.0.0.1:50021").unwrap();
+        assert_eq!(provider.url("speakers").unwrap().as_str(), "http://127.0.0.1:50021/speakers");
+    }
+
+    #[test]
+    fn speakers_are_flattened_into_named_voices() {
+        let speakers: Vec<EngineSpeaker> = serde_json::from_str(
+            r#"[{"name":"四国めたん","styles":[{"id":2,"name":"ノーマル"},{"id":0,"name":"あまあま"}]}]"#,
+        )
+        .unwrap();
+
+        assert_eq!(
+            voice_options(speakers),
+            vec![
+                VoiceOption { id: 0, name: "四国めたん（あまあま）".into() },
+                VoiceOption { id: 2, name: "四国めたん（ノーマル）".into() },
+            ]
+        );
+    }
 }

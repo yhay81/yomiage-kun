@@ -4,7 +4,7 @@ use async_trait::async_trait;
 use moka::future::Cache;
 use sha2::{Digest, Sha256};
 
-use crate::{AudioData, Result, SynthesisRequest, TtsProvider};
+use crate::{AudioData, Result, SynthesisRequest, TtsProvider, VoiceOption};
 
 /// Bounded, in-memory cache for fully synthesized audio.
 pub struct CachedTtsProvider {
@@ -36,7 +36,7 @@ impl CachedTtsProvider {
             voice.intonation,
             voice.volume
         );
-        format!("{:x}", Sha256::digest(source.as_bytes()))
+        hex::encode(Sha256::digest(source.as_bytes()))
     }
 }
 
@@ -48,6 +48,10 @@ impl TtsProvider for CachedTtsProvider {
 
     async fn healthcheck(&self) -> Result<String> {
         self.inner.healthcheck().await
+    }
+
+    async fn voices(&self) -> Result<Vec<VoiceOption>> {
+        self.inner.voices().await
     }
 
     async fn synthesize(&self, request: &SynthesisRequest) -> Result<AudioData> {

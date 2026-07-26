@@ -13,7 +13,7 @@ name = "yomiage_desktop_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
-tauri-build = { version = "2.5.6", features = [] }
+tauri-build = { version = "2.6.3", features = [] }
 
 [dependencies]
 anyhow.workspace = true
@@ -24,9 +24,12 @@ serde_json.workspace = true
 tauri = { version = "2.11.5", features = ["tray-icon"] }
 tauri-plugin-autostart = "2.5.1"
 tauri-plugin-opener = "2.5.4"
+tauri-plugin-process = "2.3.1"
 tauri-plugin-single-instance = "2.4.3"
+tauri-plugin-updater = { version = "2.10.1", default-features = false, features = ["native-tls", "zip"] }
 tokio.workspace = true
 tracing.workspace = true
+tracing-appender = "0.2.5"
 tracing-subscriber.workspace = true
 yomiage-core = { path = "../../../crates/yomiage-core" }
 yomiage-discord = { path = "../../../crates/yomiage-discord" }

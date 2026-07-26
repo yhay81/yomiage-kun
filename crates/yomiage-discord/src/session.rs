@@ -75,3 +75,34 @@ async fn playback_worker(
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn request() -> PlaybackRequest {
+        PlaybackRequest { text: "こんにちは".into(), voice: VoiceSettings::default() }
+    }
+
+    #[test]
+    fn bounded_queue_reports_full_without_waiting() {
+        let (sender, _receiver) = mpsc::channel(1);
+        let session =
+            GuildSession { text_channel_id: ChannelId::new(1), sender, queue_capacity: 1 };
+
+        assert_eq!(session.queued(), 0);
+        assert_eq!(session.try_enqueue(request()), Ok(()));
+        assert_eq!(session.queued(), 1);
+        assert_eq!(session.try_enqueue(request()), Err(EnqueueError::Full));
+    }
+
+    #[test]
+    fn closed_queue_is_removed_by_the_caller() {
+        let (sender, receiver) = mpsc::channel(1);
+        drop(receiver);
+        let session =
+            GuildSession { text_channel_id: ChannelId::new(1), sender, queue_capacity: 1 };
+
+        assert_eq!(session.try_enqueue(request()), Err(EnqueueError::Closed));
+    }
+}

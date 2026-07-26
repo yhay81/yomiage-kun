@@ -6,9 +6,16 @@
 
 1. Discord Gateway / REST / Voice
 2. 利用者が設定した AivisSpeech または VOICEVOX エンドポイント
-3. UI から明示的に開く Discord Developer Portal / GitHub ドキュメント
+3. 更新確認に使う GitHub Releases
+4. UI から明示的に開く Discord Developer Portal / 公式サイト
 
 公式の分析 API、広告 SDK、クラッシュ収集、開発者運営サーバーはありません。
+
+## 診断情報とログ
+
+利用者が明示的に**診断情報を保存**した場合だけ、アプリの版、OS、音声設定、接続状態をローカルファイルへ書き出します。Botトークンと読み上げた文章は含めません。
+
+動作ログはアプリ専用フォルダに日ごとに保存します。ログにはトークンと投稿本文を記録しません。診断ファイルにはログの保存場所だけを記載します。
 
 ## Bot トークン
 
