@@ -266,6 +266,7 @@ h1 .accent {
   position: relative;
   overflow: hidden;
   margin: 0;
+  aspect-ratio: 4 / 3;
   border: 1px solid #d5dfd2;
   border-radius: 30px;
   background: #f4f0df;
@@ -275,7 +276,7 @@ h1 .accent {
 
 .hero-visual img {
   width: 100%;
-  aspect-ratio: 4 / 3;
+  height: 100%;
   object-fit: cover;
 }
 
@@ -379,6 +380,7 @@ h1 .accent {
   overflow: hidden;
   max-width: 980px;
   margin: 0 auto clamp(2rem, 5vw, 4rem);
+  aspect-ratio: 16 / 7;
   border: 1px solid #d5dfd2;
   border-radius: 30px;
   background: var(--warm);
@@ -387,7 +389,7 @@ h1 .accent {
 
 .setup-visual img {
   width: 100%;
-  aspect-ratio: 16 / 7;
+  height: 100%;
   object-fit: cover;
 }
 
@@ -964,7 +966,7 @@ footer small {
     font-size: 0.78rem;
   }
 
-  .setup-visual img {
+  .setup-visual {
     aspect-ratio: 4 / 3;
   }
 
