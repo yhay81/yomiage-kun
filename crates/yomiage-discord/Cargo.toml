@@ -11,6 +11,7 @@ repository.workspace = true
 [dependencies]
 anyhow.workspace = true
 dashmap.workspace = true
+secrecy.workspace = true
 serde.workspace = true
 serenity.workspace = true
 songbird.workspace = true

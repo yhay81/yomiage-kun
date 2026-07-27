@@ -4,6 +4,7 @@ import { openPath, openUrl } from "@tauri-apps/plugin-opener";
 import { relaunch } from "@tauri-apps/plugin-process";
 import { check, type Update } from "@tauri-apps/plugin-updater";
 import { type BotStatus, renderBotStatus } from "./bot-status";
+import { replaceDetectedEngines } from "./engine-detection";
 import { renderEngineStatus } from "./engine-status";
 import { installSettingsDialog } from "./settings-dialog";
 import { appMarkup } from "./ui";
@@ -98,6 +99,24 @@ const message = (
 const errorMessage = (error: unknown): string =>
   error instanceof Error ? error.message : String(error);
 
+const playAudio = async (audio: ArrayBuffer): Promise<void> => {
+  const url = URL.createObjectURL(new Blob([audio], { type: "audio/wav" }));
+  const player = new Audio(url);
+  try {
+    await new Promise<void>((resolve, reject) => {
+      player.addEventListener("ended", () => resolve(), { once: true });
+      player.addEventListener(
+        "error",
+        () => reject(new Error("音声を再生できませんでした。")),
+        { once: true },
+      );
+      player.play().catch(reject);
+    });
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+};
+
 const currentProvider = (): ProviderKind =>
   providerSelect.value as ProviderKind;
 
@@ -112,7 +131,7 @@ const readSettings = (): AppSettings => ({
   queue_capacity: 32,
   voice: {
     intonation: Number(element<HTMLInputElement>("intonation").value),
-    pitch: 0,
+    pitch: Number(element<HTMLInputElement>("pitch").value),
     speaker_id: Number(voiceSelect.value),
     speed: Number(element<HTMLInputElement>("speed").value),
     volume: Number(element<HTMLInputElement>("volume").value),
@@ -120,7 +139,7 @@ const readSettings = (): AppSettings => ({
 });
 
 const updateRangeOutputs = (): void => {
-  for (const name of ["speed", "intonation", "volume"]) {
+  for (const name of ["speed", "pitch", "intonation", "volume"]) {
     element<HTMLOutputElement>(`${name}Value`).value = Number(
       element<HTMLInputElement>(name).value,
     ).toFixed(2);
@@ -155,6 +174,7 @@ const setSettings = (settings: AppSettings): void => {
   element<HTMLInputElement>("endpoint").value = settings.endpoint;
   setVoiceOptions([], settings.voice.speaker_id);
   element<HTMLInputElement>("speed").value = String(settings.voice.speed);
+  element<HTMLInputElement>("pitch").value = String(settings.voice.pitch);
   element<HTMLInputElement>("intonation").value = String(settings.voice.intonation);
   element<HTMLInputElement>("volume").value = String(settings.voice.volume);
   updateRangeOutputs();
@@ -199,9 +219,11 @@ const detectProviders = async (quiet = false): Promise<void> => {
   renderEngineStatus("testing", currentProviderName());
   try {
     const engines = await invoke<EngineInfo[]>("detect_providers");
-    for (const engine of engines) detectedEngines.set(engine.provider, engine);
-    const selected =
-      detectedEngines.get(currentProvider()) ?? engines.at(0);
+    const selected = replaceDetectedEngines(
+      detectedEngines,
+      engines,
+      currentProvider(),
+    );
     if (!selected) {
       renderEngineStatus("unavailable", currentProviderName());
       if (!quiet) {
@@ -281,6 +303,24 @@ element("saveToken").addEventListener("click", async () => {
   }
 });
 
+element("clearToken").addEventListener("click", async () => {
+  if (!window.confirm("保存済みのDiscord連携を解除しますか？")) return;
+  try {
+    await invoke("clear_saved_token");
+    inviteUrl = "";
+    inviteButton.disabled = true;
+    tokenInput.value = "";
+    element("tokenSummary").textContent = "設定が必要です。";
+    element("tokenSummary").closest(".readiness-item")?.classList.remove("ready");
+    element("tokenState").textContent =
+      "保存済みのトークンを削除しました。";
+    message("Discordとの連携を解除しました。", "success");
+    await refreshStatus();
+  } catch (error) {
+    message(errorMessage(error), "error");
+  }
+});
+
 inviteButton.addEventListener("click", () => {
   if (inviteUrl) void openUrl(inviteUrl);
 });
@@ -302,7 +342,7 @@ element("endpoint").addEventListener("input", () => {
   renderEngineStatus("idle", currentProviderName());
 });
 
-for (const name of ["speed", "intonation", "volume"]) {
+for (const name of ["speed", "pitch", "intonation", "volume"]) {
   element(name).addEventListener("input", updateRangeOutputs);
 }
 
@@ -316,13 +356,8 @@ previewVoiceButton.addEventListener("click", async () => {
     if (!detectedEngines.has(currentProvider())) await testSelectedProvider();
     const settings = readSettings();
     const audio = await invoke<ArrayBuffer>("preview_voice", { settings });
-    const url = URL.createObjectURL(new Blob([audio], { type: "audio/wav" }));
-    const player = new Audio(url);
-    player.addEventListener("ended", () => URL.revokeObjectURL(url), {
-      once: true,
-    });
-    await player.play();
-    message("選んだ声を再生しています。", "success");
+    await playAudio(audio);
+    message("選んだ声を再生しました。", "success");
   } catch (error) {
     message(errorMessage(error), "error");
   } finally {

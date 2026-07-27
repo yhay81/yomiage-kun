@@ -2,12 +2,15 @@ use std::{sync::Arc, time::Duration};
 
 use async_trait::async_trait;
 use bytes::Bytes;
+use futures_util::StreamExt as _;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use url::Url;
 
 use crate::{AppSettings, Error, Result, VoiceSettings};
+
+const MAX_AUDIO_RESPONSE_BYTES: usize = 16 * 1024 * 1024;
 
 #[derive(Debug, Clone)]
 pub struct SynthesisRequest {
@@ -177,7 +180,20 @@ impl TtsProvider for VoicevoxCompatibleProvider {
             .and_then(|value| value.to_str().ok())
             .unwrap_or("audio/wav")
             .to_owned();
-        Ok(AudioData { bytes: response.bytes().await?, content_type })
+        if response.content_length().is_some_and(|length| length > MAX_AUDIO_RESPONSE_BYTES as u64)
+        {
+            return Err(Error::AudioResponseTooLarge(MAX_AUDIO_RESPONSE_BYTES / 1024 / 1024));
+        }
+        let mut stream = response.bytes_stream();
+        let mut bytes = Vec::new();
+        while let Some(chunk) = stream.next().await {
+            let chunk = chunk?;
+            if bytes.len().saturating_add(chunk.len()) > MAX_AUDIO_RESPONSE_BYTES {
+                return Err(Error::AudioResponseTooLarge(MAX_AUDIO_RESPONSE_BYTES / 1024 / 1024));
+            }
+            bytes.extend_from_slice(&chunk);
+        }
+        Ok(AudioData { bytes: Bytes::from(bytes), content_type })
     }
 }
 

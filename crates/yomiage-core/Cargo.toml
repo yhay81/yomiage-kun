@@ -12,6 +12,7 @@ repository.workspace = true
 anyhow.workspace = true
 async-trait.workspace = true
 bytes.workspace = true
+futures-util.workspace = true
 hex.workspace = true
 moka.workspace = true
 regex.workspace = true

@@ -55,6 +55,7 @@ npm --prefix site run verify
 cargo fmt --all -- --check
 cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
+npm --prefix apps/desktop run lint
 npm --prefix apps/desktop run build
 npm --prefix site run verify
 npm --prefix apps/desktop run tauri build

@@ -1,4 +1,5 @@
 use serenity::{
+    all::Permissions,
     builder::CreateCommand,
     model::application::{Command, InstallationContext, InteractionContext},
     prelude::Context,
@@ -15,10 +16,15 @@ pub fn definitions() -> Vec<CreateCommand> {
     COMMANDS
         .iter()
         .map(|(name, description)| {
-            CreateCommand::new(*name)
+            let command = CreateCommand::new(*name)
                 .description(*description)
                 .integration_types(vec![InstallationContext::Guild])
-                .contexts(vec![InteractionContext::Guild])
+                .contexts(vec![InteractionContext::Guild]);
+            if matches!(*name, "join" | "leave") {
+                command.default_member_permissions(Permissions::MANAGE_GUILD)
+            } else {
+                command
+            }
         })
         .collect()
 }

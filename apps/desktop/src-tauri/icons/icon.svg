@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <title>読み上げくん</title>
   <rect width="512" height="512" rx="116" fill="#171a1c"/>
   <rect x="82" y="82" width="348" height="348" rx="96" fill="#222729" stroke="#3b4242" stroke-width="12"/>
   <rect x="159" y="215" width="32" height="82" rx="16" fill="#d8ff4f"/>

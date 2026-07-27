@@ -5,8 +5,9 @@ use std::sync::{
 
 use serenity::{
     all::{
-        CommandInteraction, Context, CreateInteractionResponse, CreateInteractionResponseMessage,
-        EventHandler, GuildId, Interaction, Message, Ready,
+        ChannelId, CommandInteraction, Context, CreateInteractionResponse,
+        CreateInteractionResponseMessage, EventHandler, GuildId, Interaction, Message, Permissions,
+        Ready, UserId,
     },
     async_trait,
 };
@@ -30,6 +31,22 @@ pub struct Handler {
 }
 
 impl Handler {
+    fn has_manage_permission(permissions: Option<Permissions>) -> bool {
+        permissions.is_some_and(|permissions| {
+            permissions.intersects(Permissions::MANAGE_GUILD | Permissions::ADMINISTRATOR)
+        })
+    }
+
+    fn command_has_manage_permission(command: &CommandInteraction) -> bool {
+        Self::has_manage_permission(command.member.as_ref().and_then(|member| member.permissions))
+    }
+
+    fn user_voice_channel(ctx: &Context, guild_id: GuildId, user_id: UserId) -> Option<ChannelId> {
+        ctx.cache
+            .guild(guild_id)
+            .and_then(|guild| guild.voice_states.get(&user_id).and_then(|state| state.channel_id))
+    }
+
     async fn respond(command: &CommandInteraction, ctx: &Context, content: impl Into<String>) {
         let response = CreateInteractionResponse::Message(
             CreateInteractionResponseMessage::new().content(content).ephemeral(true),
@@ -43,9 +60,10 @@ impl Handler {
         let Some(guild_id) = command.guild_id else {
             return "サーバー内で実行してください。".into();
         };
-        let voice_channel = ctx.cache.guild(guild_id).and_then(|guild| {
-            guild.voice_states.get(&command.user.id).and_then(|state| state.channel_id)
-        });
+        if !Self::command_has_manage_permission(command) {
+            return "この操作には「サーバーの管理」権限が必要です。".into();
+        }
+        let voice_channel = Self::user_voice_channel(ctx, guild_id, command.user.id);
         let Some(voice_channel) = voice_channel else {
             return "先にボイスチャンネルへ参加してください。".into();
         };
@@ -63,6 +81,7 @@ impl Handler {
                     guild_id,
                     create_session(
                         command.channel_id,
+                        voice_channel,
                         self.queue_capacity,
                         call,
                         Arc::clone(&self.provider),
@@ -80,11 +99,16 @@ impl Handler {
         }
     }
 
-    async fn leave(&self, ctx: &Context, guild_id: Option<GuildId>) -> String {
-        let Some(guild_id) = guild_id else {
+    async fn leave(&self, ctx: &Context, command: &CommandInteraction) -> String {
+        let Some(guild_id) = command.guild_id else {
             return "サーバー内で実行してください。".into();
         };
-        self.sessions.remove(&guild_id);
+        if !Self::command_has_manage_permission(command) {
+            return "この操作には「サーバーの管理」権限が必要です。".into();
+        }
+        if let Some((_, session)) = self.sessions.remove(&guild_id) {
+            session.stop().await;
+        }
         let Some(manager) = songbird::get(ctx).await else {
             return "音声サービスを取得できませんでした。".into();
         };
@@ -97,12 +121,17 @@ impl Handler {
         }
     }
 
-    async fn skip(&self, ctx: &Context, guild_id: Option<GuildId>) -> String {
-        let Some(guild_id) = guild_id else {
+    async fn skip(&self, ctx: &Context, command: &CommandInteraction) -> String {
+        let Some(guild_id) = command.guild_id else {
             return "サーバー内で実行してください。".into();
         };
-        if !self.sessions.contains_key(&guild_id) {
+        let Some(session) = self.sessions.get(&guild_id).map(|entry| entry.clone()) else {
             return "現在は読み上げていません。".into();
+        };
+        if Self::user_voice_channel(ctx, guild_id, command.user.id)
+            != Some(session.voice_channel_id)
+        {
+            return "読み上げくんと同じボイスチャンネルに参加してから実行してください。".into();
         }
         let Some(manager) = songbird::get(ctx).await else {
             return "音声サービスを取得できませんでした。".into();
@@ -161,8 +190,8 @@ impl EventHandler for Handler {
         };
         let content = match command.data.name.as_str() {
             "join" => self.join(&ctx, &command).await,
-            "leave" => self.leave(&ctx, command.guild_id).await,
-            "skip" => self.skip(&ctx, command.guild_id).await,
+            "leave" => self.leave(&ctx, &command).await,
+            "skip" => self.skip(&ctx, &command).await,
             "status" => self.guild_status(command.guild_id),
             _ => return,
         };
@@ -202,9 +231,24 @@ impl EventHandler for Handler {
                 tracing::warn!(%guild_id, "guild speech queue is full");
             }
             Err(EnqueueError::Closed) => {
-                self.sessions.remove(&guild_id);
+                if let Some((_, session)) = self.sessions.remove(&guild_id) {
+                    session.stop().await;
+                }
                 tracing::warn!(%guild_id, "guild speech queue closed unexpectedly");
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn management_commands_require_manage_guild_or_administrator() {
+        assert!(!Handler::has_manage_permission(None));
+        assert!(!Handler::has_manage_permission(Some(Permissions::SEND_MESSAGES)));
+        assert!(Handler::has_manage_permission(Some(Permissions::MANAGE_GUILD)));
+        assert!(Handler::has_manage_permission(Some(Permissions::ADMINISTRATOR)));
     }
 }

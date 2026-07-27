@@ -11,8 +11,9 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
+    "lint": "biome check --config-path ../biome.json scripts astro.config.mjs wrangler.jsonc",
     "test:html": "node scripts/verify-html.mjs",
-    "verify": "npm run check && npm run build && npm run test:html",
+    "verify": "npm run lint && npm run check && npm run build && npm run test:html",
     "deploy": "npm run build && wrangler deploy",
     "deploy:preview": "npm run build && wrangler versions upload"
   },
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "0.9.9",
+    "@biomejs/biome": "2.5.5",
     "parse5": "8.0.1",
     "typescript": "6.0.3",
     "wrangler": "4.114.0"

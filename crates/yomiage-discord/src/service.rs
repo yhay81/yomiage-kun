@@ -2,6 +2,7 @@ use std::sync::{Arc, atomic::AtomicBool};
 
 use anyhow::{Context as _, Result, anyhow};
 use dashmap::DashMap;
+use secrecy::{ExposeSecret as _, SecretString};
 use serde::{Deserialize, Serialize};
 use serenity::{
     Client,
@@ -17,9 +18,8 @@ use yomiage_core::{TtsProvider, VoiceSettings};
 
 use crate::{handler::Handler, session::Sessions};
 
-#[derive(Debug, Clone)]
 pub struct BotConfig {
-    pub token: String,
+    pub token: SecretString,
     pub voice: VoiceSettings,
     pub queue_capacity: usize,
     pub max_characters: usize,
@@ -59,7 +59,7 @@ impl BotService {
     ///
     /// Returns an error when configuration is invalid or the Discord client cannot be initialized.
     pub async fn start(config: BotConfig, provider: Arc<dyn TtsProvider>) -> Result<Self> {
-        if config.token.trim().is_empty() {
+        if config.token.expose_secret().trim().is_empty() {
             return Err(anyhow!("Discord Botトークンが設定されていません"));
         }
         if !(1..=256).contains(&config.queue_capacity) {
@@ -82,7 +82,7 @@ impl BotService {
             | GatewayIntents::GUILD_MESSAGES
             | GatewayIntents::GUILD_VOICE_STATES
             | GatewayIntents::MESSAGE_CONTENT;
-        let mut client = Client::builder(&config.token, intents)
+        let mut client = Client::builder(config.token.expose_secret(), intents)
             .event_handler(handler)
             .register_songbird()
             .await
@@ -110,6 +110,11 @@ impl BotService {
 
     pub async fn stop(self) {
         self.status.write().await.state = BotState::Stopping;
+        let sessions = self.sessions.iter().map(|entry| entry.value().clone()).collect::<Vec<_>>();
+        self.sessions.clear();
+        for session in sessions {
+            session.stop().await;
+        }
         self.shard_manager.shutdown_all().await;
         let mut task = self.task;
         if timeout(Duration::from_secs(5), &mut task).await.is_err() {

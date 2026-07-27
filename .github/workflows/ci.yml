@@ -60,6 +60,9 @@ jobs:
           cache-dependency-path: apps/desktop/package-lock.json
       - run: npm ci
       - run: npm audit --audit-level=high
+      - name: Verify release metadata
+        run: node ../../.github/scripts/verify-release-version.mjs
+      - run: npm run lint
       - run: npm test
       - run: npm run build
 

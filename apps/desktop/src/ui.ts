@@ -139,6 +139,7 @@ export const appMarkup = `
           <div class="button-row">
             <button id="saveToken" class="secondary" type="button">確認して保存</button>
             <button id="inviteBot" class="secondary" type="button" disabled>サーバーに追加</button>
+            <button id="clearToken" class="quiet-button" type="button">連携を解除</button>
           </div>
           <p id="tokenState" class="hint">保存済みのトークンを確認しています…</p>
         </section>
@@ -187,6 +188,7 @@ export const appMarkup = `
           </div>
           <div class="range-grid">
             <label>速さ <output id="speedValue"></output><input id="speed" type="range" min="0.5" max="2" step="0.05" /></label>
+            <label>高さ <output id="pitchValue"></output><input id="pitch" type="range" min="-0.15" max="0.15" step="0.01" /></label>
             <label>抑揚 <output id="intonationValue"></output><input id="intonation" type="range" min="0" max="2" step="0.05" /></label>
             <label>音量 <output id="volumeValue"></output><input id="volume" type="range" min="0" max="2" step="0.05" /></label>
           </div>

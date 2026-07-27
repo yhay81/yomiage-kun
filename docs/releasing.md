@@ -26,6 +26,8 @@ Windows証明書はPFXをBase64化して登録します。macOSはDeveloper ID A
 - `apps/desktop/src-tauri/tauri.conf.json`
 - `CHANGELOG.md`
 
+`CHANGELOG.md`の`Unreleased`を`## [X.Y.Z] - YYYY-MM-DD`へ変更してから実行します。workflowはタグ、3か所のアプリ版、変更履歴の見出しが一致しない場合に停止します。
+
 ## 検証
 
 1. CI がすべて成功していることを確認します。
@@ -37,6 +39,6 @@ Windows証明書はPFXをBase64化して登録します。macOSはDeveloper ID A
 
 ## 公開
 
-`vX.Y.Z` のannotated tagを作成してpushするとrelease workflowがbundleを作ります。署名用secretが一つでも不足している場合は、未署名版を作らずに停止します。成果物はDraft Releaseとして生成し、署名、公証、チェックサム、実機確認が終わってから公開します。
+`vX.Y.Z` のannotated tagを作成してpushするとrelease workflowがbundleを作ります。Actions画面から手動実行する場合も、同じ`vX.Y.Z`を入力します。署名用secretが一つでも不足している場合は、未署名版を作らずに停止します。成果物はDraft Releaseとして生成し、署名、公証、チェックサム、実機確認が終わってから公開します。
 
 署名 secrets が設定されていない fork では CI の compile check のみ利用してください。未署名 bundle を公式 Release として公開しないでください。

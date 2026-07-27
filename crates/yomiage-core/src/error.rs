@@ -8,6 +8,8 @@ pub enum Error {
     ProviderUnavailable(String),
     #[error("TTSエンジンがエラーを返しました: {0}")]
     ProviderResponse(String),
+    #[error("TTSエンジンの音声データが大きすぎます（上限: {0} MiB）")]
+    AudioResponseTooLarge(usize),
     #[error(transparent)]
     Http(#[from] reqwest::Error),
     #[error(transparent)]

@@ -2,7 +2,7 @@
 
 ## データフロー
 
-読み上げくんが通信する相手は次の3種類です。
+読み上げくんが通信する相手は次の4種類です。
 
 1. Discord Gateway / REST / Voice
 2. 利用者が設定した AivisSpeech または VOICEVOX エンドポイント
@@ -31,6 +31,8 @@ Bot トークンは OS の資格情報ストアへ保存します。
 招待 URL は View Channels、Send Messages、Connect、Speak だけを要求します。Administrator は不要です。投稿本文の受信には Developer Portal で Message Content Intent を有効にする必要があります。
 
 Bot が読み上げるのは、`/join` を実行したサーバーとテキストチャンネルの投稿だけです。Bot 自身の投稿と DM は無視します。
+
+`/join`と`/leave`は「サーバーの管理」権限を持つ人だけが実行できます。`/skip`は読み上げくんと同じボイスチャンネルに参加している人だけが実行できます。
 
 ## 音声と投稿本文
 

@@ -1,5 +1,6 @@
 use std::{
     fs,
+    io::Write as _,
     path::{Path, PathBuf},
     sync::Arc,
     time::{SystemTime, UNIX_EPOCH},
@@ -14,11 +15,12 @@ use tauri::{
     menu::{Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
 };
+use tempfile::NamedTempFile;
 use yomiage_core::{
     AppSettings, AudioData, CachedTtsProvider, ProviderKind, SynthesisRequest, TtsProvider,
     VoiceOption, build_provider,
 };
-use yomiage_discord::{BotConfig, BotService, BotStatus, validate_token};
+use yomiage_discord::{BotConfig, BotService, BotState, BotStatus, validate_token};
 
 const KEYRING_SERVICE: &str = "io.github.yhay81.yomiagekun";
 const KEYRING_USER: &str = "discord-bot-token";
@@ -26,11 +28,21 @@ const INVITE_PERMISSIONS: u64 = 3_148_800;
 const AUDIO_CACHE_BYTES: u64 = 128 * 1024 * 1024;
 
 struct DesktopState {
-    bot: Mutex<Option<BotService>>,
+    bot: Mutex<BotSlot>,
     settings_path: PathBuf,
     diagnostics_dir: PathBuf,
     log_dir: PathBuf,
-    _log_guard: tracing_appender::non_blocking::WorkerGuard,
+    _log_guard: Option<tracing_appender::non_blocking::WorkerGuard>,
+}
+
+#[derive(Default)]
+enum BotSlot {
+    #[default]
+    Stopped,
+    Starting {
+        cancel_requested: bool,
+    },
+    Running(BotService),
 }
 
 #[derive(Debug, Serialize)]
@@ -68,23 +80,60 @@ fn keyring_entry() -> Result<Entry, String> {
     Entry::new(KEYRING_SERVICE, KEYRING_USER).map_err(|error| error.to_string())
 }
 
-fn load_settings(path: &PathBuf) -> Result<AppSettings, String> {
-    if !path.exists() {
-        return Ok(AppSettings::default());
-    }
+fn backup_path(path: &Path) -> PathBuf {
+    path.with_extension("json.bak")
+}
+
+fn read_settings_file(path: &Path) -> Result<AppSettings, String> {
     let source = fs::read_to_string(path).map_err(|error| error.to_string())?;
     let settings: AppSettings = serde_json::from_str(&source).map_err(|error| error.to_string())?;
     settings.validate().map_err(|error| error.to_string())?;
     Ok(settings)
 }
 
-fn write_settings(path: &PathBuf, settings: &AppSettings) -> Result<(), String> {
-    settings.validate().map_err(|error| error.to_string())?;
-    if let Some(parent) = path.parent() {
-        fs::create_dir_all(parent).map_err(|error| error.to_string())?;
+fn load_settings(path: &Path) -> AppSettings {
+    if !path.exists() {
+        return AppSettings::default();
     }
+    match read_settings_file(path) {
+        Ok(settings) => settings,
+        Err(primary_error) => {
+            let backup = backup_path(path);
+            if backup.exists() {
+                match read_settings_file(&backup) {
+                    Ok(settings) => {
+                        tracing::warn!(%primary_error, "settings were restored from backup");
+                        return settings;
+                    }
+                    Err(backup_error) => {
+                        tracing::warn!(
+                            %primary_error,
+                            %backup_error,
+                            "settings and backup were invalid; using defaults"
+                        );
+                    }
+                }
+            } else {
+                tracing::warn!(%primary_error, "settings were invalid; using defaults");
+            }
+            AppSettings::default()
+        }
+    }
+}
+
+fn write_settings(path: &Path, settings: &AppSettings) -> Result<(), String> {
+    settings.validate().map_err(|error| error.to_string())?;
+    let parent = path.parent().ok_or_else(|| "設定ファイルの保存先が不正です".to_owned())?;
+    fs::create_dir_all(parent).map_err(|error| error.to_string())?;
     let source = serde_json::to_string_pretty(settings).map_err(|error| error.to_string())?;
-    fs::write(path, source).map_err(|error| error.to_string())
+    if path.exists() && read_settings_file(path).is_ok() {
+        fs::copy(path, backup_path(path)).map_err(|error| error.to_string())?;
+    }
+    let mut temporary = NamedTempFile::new_in(parent).map_err(|error| error.to_string())?;
+    temporary.write_all(source.as_bytes()).map_err(|error| error.to_string())?;
+    temporary.as_file().sync_all().map_err(|error| error.to_string())?;
+    temporary.persist(path).map_err(|error| error.error.to_string())?;
+    Ok(())
 }
 
 fn invite_url(application_id: u64) -> String {
@@ -122,7 +171,7 @@ async fn inspect_engine(settings: AppSettings) -> Result<EngineInfo, String> {
 
 #[tauri::command]
 #[allow(clippy::needless_pass_by_value)] // Tauri commands deserialize owned extractor values.
-fn get_settings(state: State<'_, DesktopState>) -> Result<AppSettings, String> {
+fn get_settings(state: State<'_, DesktopState>) -> AppSettings {
     load_settings(&state.settings_path)
 }
 
@@ -149,6 +198,32 @@ async fn saved_token_info() -> Result<Option<TokenInfo>, String> {
         Err(error) => return Err(format!("保存済みトークンを取得できませんでした: {error}")),
     };
     token_info(&token).await.map(Some)
+}
+
+async fn stop_bot_service(bot: &Mutex<BotSlot>) {
+    let service = {
+        let mut slot = bot.lock().await;
+        match std::mem::replace(&mut *slot, BotSlot::Stopped) {
+            BotSlot::Running(service) => Some(service),
+            BotSlot::Starting { .. } => {
+                *slot = BotSlot::Starting { cancel_requested: true };
+                None
+            }
+            BotSlot::Stopped => None,
+        }
+    };
+    if let Some(service) = service {
+        service.stop().await;
+    }
+}
+
+#[tauri::command]
+async fn clear_saved_token(state: State<'_, DesktopState>) -> Result<(), String> {
+    stop_bot_service(&state.bot).await;
+    match keyring_entry()?.delete_credential() {
+        Ok(()) | Err(keyring::Error::NoEntry) => Ok(()),
+        Err(error) => Err(format!("保存済みトークンを削除できませんでした: {error}")),
+    }
 }
 
 #[tauri::command]
@@ -198,10 +273,14 @@ async fn export_diagnostics(state: State<'_, DesktopState>) -> Result<Diagnostic
     let timestamp =
         SystemTime::now().duration_since(UNIX_EPOCH).map_err(|error| error.to_string())?.as_secs();
     let path = state.diagnostics_dir.join(format!("読み上げくん-診断-{timestamp}.json"));
-    let settings = load_settings(&state.settings_path)?;
-    let bot = match state.bot.lock().await.as_ref() {
-        Some(service) => service.snapshot().await,
-        None => BotStatus::default(),
+    let settings = load_settings(&state.settings_path);
+    let bot = match &*state.bot.lock().await {
+        BotSlot::Running(service) => service.snapshot().await,
+        BotSlot::Starting { cancel_requested } => BotStatus {
+            state: if *cancel_requested { BotState::Stopping } else { BotState::Starting },
+            ..BotStatus::default()
+        },
+        BotSlot::Stopped => BotStatus::default(),
     };
     let report = DiagnosticReport {
         application: "読み上げくん",
@@ -220,48 +299,90 @@ async fn export_diagnostics(state: State<'_, DesktopState>) -> Result<Diagnostic
 
 #[tauri::command]
 async fn start_bot(state: State<'_, DesktopState>) -> Result<(), String> {
-    let mut bot = state.bot.lock().await;
-    if bot.is_some() {
-        return Err("ボットはすでに起動しています".into());
+    {
+        let mut bot = state.bot.lock().await;
+        match &*bot {
+            BotSlot::Stopped => {
+                *bot = BotSlot::Starting { cancel_requested: false };
+            }
+            BotSlot::Starting { .. } => return Err("ボットを起動しています".into()),
+            BotSlot::Running(_) => return Err("ボットはすでに起動しています".into()),
+        }
     }
-    let settings = load_settings(&state.settings_path)?;
-    let token = keyring_entry()?
-        .get_password()
-        .map_err(|_| "Discordボットのトークンが保存されていません".to_owned())?;
-    let provider: Arc<dyn TtsProvider> = Arc::new(CachedTtsProvider::new(
-        build_provider(&settings).map_err(|e| e.to_string())?,
-        AUDIO_CACHE_BYTES,
-    ));
-    provider.healthcheck().await.map_err(|error| provider_connection_error(&settings, &error))?;
-    let service = BotService::start(
-        BotConfig {
-            token,
-            voice: settings.voice,
-            queue_capacity: settings.queue_capacity,
-            max_characters: settings.max_characters,
-        },
-        provider,
-    )
-    .await
-    .map_err(|error| error.to_string())?;
-    *bot = Some(service);
+
+    let result = async {
+        let settings = load_settings(&state.settings_path);
+        let token = keyring_entry()?
+            .get_password()
+            .map_err(|_| "Discordボットのトークンが保存されていません".to_owned())?;
+        let provider: Arc<dyn TtsProvider> = Arc::new(CachedTtsProvider::new(
+            build_provider(&settings).map_err(|error| error.to_string())?,
+            AUDIO_CACHE_BYTES,
+        ));
+        provider
+            .healthcheck()
+            .await
+            .map_err(|error| provider_connection_error(&settings, &error))?;
+        BotService::start(
+            BotConfig {
+                token: token.into(),
+                voice: settings.voice,
+                queue_capacity: settings.queue_capacity,
+                max_characters: settings.max_characters,
+            },
+            provider,
+        )
+        .await
+        .map_err(|error| error.to_string())
+    }
+    .await;
+
+    let service = match result {
+        Ok(service) => service,
+        Err(error) => {
+            let mut bot = state.bot.lock().await;
+            if matches!(*bot, BotSlot::Starting { .. }) {
+                *bot = BotSlot::Stopped;
+            }
+            return Err(error);
+        }
+    };
+
+    let mut service = Some(service);
+    let cancelled = {
+        let mut bot = state.bot.lock().await;
+        if let BotSlot::Starting { cancel_requested: false } = &*bot {
+            *bot = BotSlot::Running(service.take().expect("service is available"));
+            false
+        } else {
+            *bot = BotSlot::Stopped;
+            true
+        }
+    };
+    if cancelled {
+        if let Some(service) = service {
+            service.stop().await;
+        }
+        return Err("ボットの起動を取り消しました".into());
+    }
     Ok(())
 }
 
 #[tauri::command]
 async fn stop_bot(state: State<'_, DesktopState>) -> Result<(), String> {
-    let service = state.bot.lock().await.take();
-    if let Some(service) = service {
-        service.stop().await;
-    }
+    stop_bot_service(&state.bot).await;
     Ok(())
 }
 
 #[tauri::command]
 async fn bot_status(state: State<'_, DesktopState>) -> Result<BotStatus, String> {
-    Ok(match state.bot.lock().await.as_ref() {
-        Some(service) => service.snapshot().await,
-        None => BotStatus::default(),
+    Ok(match &*state.bot.lock().await {
+        BotSlot::Running(service) => service.snapshot().await,
+        BotSlot::Starting { cancel_requested } => BotStatus {
+            state: if *cancel_requested { BotState::Stopping } else { BotState::Starting },
+            ..BotStatus::default()
+        },
+        BotSlot::Stopped => BotStatus::default(),
     })
 }
 
@@ -276,10 +397,7 @@ fn show_main_window(app: &AppHandle) {
 fn quit_application(app: &AppHandle) {
     let app = app.clone();
     tauri::async_runtime::spawn(async move {
-        let service = app.state::<DesktopState>().bot.lock().await.take();
-        if let Some(service) = service {
-            service.stop().await;
-        }
+        stop_bot_service(&app.state::<DesktopState>().bot).await;
         app.exit(0);
     });
 }
@@ -314,11 +432,22 @@ fn install_tray(app: &mut tauri::App) -> tauri::Result<()> {
     Ok(())
 }
 
-fn setup_logging(log_dir: &Path) -> tracing_appender::non_blocking::WorkerGuard {
-    fs::create_dir_all(log_dir).expect("log directory should be writable");
+fn setup_logging(log_dir: &Path) -> Option<tracing_appender::non_blocking::WorkerGuard> {
+    if let Err(error) = fs::create_dir_all(log_dir) {
+        eprintln!("ログの保存先を作成できませんでした。ログファイルなしで起動します: {error}");
+        let _ = tracing_subscriber::fmt()
+            .with_env_filter(
+                tracing_subscriber::EnvFilter::try_from_default_env()
+                    .unwrap_or_else(|_| "yomiage=info".into()),
+            )
+            .with_target(false)
+            .compact()
+            .try_init();
+        return None;
+    }
     let file_appender = tracing_appender::rolling::daily(log_dir, "yomiage-kun.log");
     let (writer, guard) = tracing_appender::non_blocking(file_appender);
-    tracing_subscriber::fmt()
+    let initialized = tracing_subscriber::fmt()
         .with_env_filter(
             tracing_subscriber::EnvFilter::try_from_default_env()
                 .unwrap_or_else(|_| "yomiage=info".into()),
@@ -327,8 +456,9 @@ fn setup_logging(log_dir: &Path) -> tracing_appender::non_blocking::WorkerGuard 
         .with_target(false)
         .with_writer(writer)
         .compact()
-        .init();
-    guard
+        .try_init()
+        .is_ok();
+    initialized.then_some(guard)
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -352,7 +482,7 @@ pub fn run() {
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .manage(DesktopState {
-            bot: Mutex::new(None),
+            bot: Mutex::new(BotSlot::default()),
             settings_path,
             diagnostics_dir,
             log_dir,
@@ -375,6 +505,7 @@ pub fn run() {
             save_settings,
             save_and_validate_token,
             saved_token_info,
+            clear_saved_token,
             test_provider,
             detect_providers,
             preview_voice,
@@ -390,6 +521,7 @@ pub fn run() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use tempfile::tempdir;
 
     #[test]
     fn provider_error_is_actionable_and_hides_transport_details() {
@@ -401,5 +533,40 @@ mod tests {
         assert!(message.contains("AivisSpeechを起動"));
         assert!(message.contains("接続を確認"));
         assert!(!message.contains("error sending request"));
+    }
+
+    #[test]
+    fn settings_are_replaced_atomically_and_backed_up() {
+        let directory = tempdir().unwrap();
+        let path = directory.path().join("settings.json");
+        let first = AppSettings { max_characters: 120, ..AppSettings::default() };
+        write_settings(&path, &first).unwrap();
+
+        let mut second = first.clone();
+        second.max_characters = 180;
+        write_settings(&path, &second).unwrap();
+
+        assert_eq!(load_settings(&path).max_characters, 180);
+        assert_eq!(read_settings_file(&backup_path(&path)).unwrap().max_characters, 120);
+    }
+
+    #[test]
+    fn invalid_settings_are_restored_from_backup() {
+        let directory = tempdir().unwrap();
+        let path = directory.path().join("settings.json");
+        let backup = backup_path(&path);
+        fs::write(&path, "{broken").unwrap();
+        fs::write(&backup, serde_json::to_string(&AppSettings::default()).unwrap()).unwrap();
+
+        assert_eq!(load_settings(&path), AppSettings::default());
+    }
+
+    #[test]
+    fn invalid_settings_without_backup_fall_back_to_defaults() {
+        let directory = tempdir().unwrap();
+        let path = directory.path().join("settings.json");
+        fs::write(&path, "{broken").unwrap();
+
+        assert_eq!(load_settings(&path), AppSettings::default());
     }
 }

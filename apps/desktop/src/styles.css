@@ -689,10 +689,6 @@ footer {
   font-weight: 700;
 }
 
-.advanced-settings label {
-  margin-top: 9px;
-}
-
 label {
   display: grid;
   gap: 6px;
@@ -700,6 +696,10 @@ label {
   color: #59665f;
   font-size: 0.7rem;
   font-weight: 700;
+}
+
+.advanced-settings label {
+  margin-top: 9px;
 }
 
 input,
@@ -748,7 +748,7 @@ input[type="range"] {
 }
 
 .range-grid {
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
 }
 
 output {
