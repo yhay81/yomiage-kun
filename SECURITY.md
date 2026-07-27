@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-最新の安定リリースだけをセキュリティ修正の対象とします。開発中の `master` は保証対象ではありません。
+最新の安定リリースだけをセキュリティ修正の対象とします。開発中の `main` は保証対象ではありません。
 
 ## Reporting a vulnerability
 

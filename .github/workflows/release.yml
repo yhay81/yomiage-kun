@@ -105,7 +105,7 @@ jobs:
 
             すべてのインストーラは署名済みです。変更内容はCHANGELOGを確認してください。
 
-            Code signing policy: https://github.com/yhay81/yomiage-kun/blob/master/CODE_SIGNING_POLICY.md
+            Code signing policy: https://github.com/yhay81/yomiage-kun/blob/main/CODE_SIGNING_POLICY.md
           releaseDraft: true
           prerelease: false
           args: --bundles nsis --config "${{ runner.temp }}\tauri.windows-signing.json"
@@ -171,7 +171,7 @@ jobs:
 
             すべてのインストーラは署名済みです。変更内容はCHANGELOGを確認してください。
 
-            Code signing policy: https://github.com/yhay81/yomiage-kun/blob/master/CODE_SIGNING_POLICY.md
+            Code signing policy: https://github.com/yhay81/yomiage-kun/blob/main/CODE_SIGNING_POLICY.md
           releaseDraft: true
           prerelease: false
           args: --bundles dmg --target ${{ matrix.target }}
