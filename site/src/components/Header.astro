@@ -1,0 +1,56 @@
+---
+import Brand from "./Brand.astro";
+
+const pathname = Astro.url.pathname;
+const navItems = [
+  { href: "/#features", label: "できること", match: "/" },
+  { href: "/guide/", label: "はじめ方", match: "/guide/" },
+  { href: "/help/", label: "困ったとき", match: "/help/" },
+];
+
+const isCurrent = (match: string) =>
+  match === "/" ? pathname === "/" : pathname.startsWith(match);
+---
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="/" aria-label="読み上げくん トップページ">
+      <Brand />
+    </a>
+
+    <nav class="desktop-nav" aria-label="主なページ">
+      {
+        navItems.map((item) => (
+          <a
+            href={item.href}
+            aria-current={isCurrent(item.match) ? "page" : undefined}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+      <a class="header-download" href="https://github.com/yhay81/yomiage-kun/releases">
+        ダウンロード
+      </a>
+    </nav>
+
+    <details class="mobile-menu">
+      <summary aria-label="メニューを開く">
+        <span></span><span></span><span></span>
+      </summary>
+      <nav aria-label="スマートフォン用メニュー">
+        {
+          navItems.map((item) => (
+            <a
+              href={item.href}
+              aria-current={isCurrent(item.match) ? "page" : undefined}
+            >
+              {item.label}
+            </a>
+          ))
+        }
+        <a href="https://github.com/yhay81/yomiage-kun/releases">ダウンロード</a>
+      </nav>
+    </details>
+  </div>
+</header>

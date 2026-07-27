@@ -1,0 +1,17 @@
+---
+interface Props {
+  tone?: "primary" | "light";
+  class?: string;
+}
+
+const { tone = "primary", class: className } = Astro.props;
+---
+
+<a
+  class:list={["button", tone, className]}
+  href="https://github.com/yhay81/yomiage-kun/releases"
+  data-download-link
+>
+  <span data-download-label>正式版を確認する</span>
+  <span class="button-arrow" aria-hidden="true">↗</span>
+</a>

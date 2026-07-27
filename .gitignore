@@ -1,6 +1,8 @@
 /target/
 **/node_modules/
 **/dist/
+**/.astro/
+**/.wrangler/
 **/.tauri/
 **/src-tauri/gen/schemas/
 .DS_Store

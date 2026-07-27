@@ -1,0 +1,60 @@
+---
+import PageHero from "../../components/PageHero.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="アプリの署名"
+  description="読み上げくんのWindows版へ安全な署名を付ける仕組みと、公式版の確認方法を説明します。"
+>
+  <PageHero
+    eyebrow="アプリの署名"
+    title="安心して開ける正式版を届けるために。"
+    description="Windows版には、どこで作られ、途中で変更されていないかを確認できる署名を付けて公開します。"
+  />
+
+  <article class="shell policy-content signing-content">
+    <section class="signing-summary">
+      <div class="shield-mark" aria-hidden="true"><span></span></div>
+      <div>
+        <p class="doc-kicker">現在の取り組み</p>
+        <h2>SignPath Foundationへ無料のオープンソース署名を申請しています。</h2>
+        <p>
+          審査と設定が完了した正式版では、Windowsが配布元とファイルの内容を確認できるようになります。
+          署名の有無は、リリースページの説明でもお知らせします。
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>署名するもの</h2>
+      <ul class="check-list">
+        <li><span aria-hidden="true">✓</span>このプロジェクトの公開されたソースコードから自動で作ったWindows版</li>
+        <li><span aria-hidden="true">✓</span>公開する版と同じ製品名・版番号を持つインストーラ</li>
+        <li><span aria-hidden="true">✓</span>内容を確認し、公開を承認した正式版</li>
+      </ul>
+      <p>第三者が作ったファイルや、公式版を手元で変更したファイルには署名しません。</p>
+    </section>
+
+    <section>
+      <h2>正式版を確認する方法</h2>
+      <ol class="steps-list compact-steps">
+        <li><span>1</span><div><h3>公式の配布ページを使う</h3><p><a href="https://github.com/yhay81/yomiage-kun/releases">GitHubの正式版ページ</a>以外からダウンロードしないでください。</p></div></li>
+        <li><span>2</span><div><h3>版番号と説明を確認する</h3><p>署名済みか、既知の注意点がないかをリリースの説明で確認します。</p></div></li>
+        <li><span>3</span><div><h3>警告が不自然なら開かない</h3><p>配布元が不明、名前が違う、説明にない警告が出る場合は開かずにお問い合わせください。</p></div></li>
+      </ol>
+    </section>
+
+    <section class="foundation-note">
+      <p>
+        Free code signing provided by
+        <a href="https://about.signpath.io/">SignPath.io</a>,
+        certificate by
+        <a href="https://signpath.org/">SignPath Foundation</a>.
+      </p>
+      <a class="text-link" href="https://github.com/yhay81/yomiage-kun/blob/master/CODE_SIGNING_POLICY.md">
+        署名の詳しい運用方針を見る <span aria-hidden="true">↗</span>
+      </a>
+    </section>
+  </article>
+</BaseLayout>

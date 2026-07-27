@@ -1,0 +1,81 @@
+---
+import PageHero from "../../components/PageHero.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="プライバシー"
+  description="読み上げくんが通信する相手、保存する情報、利用者のパソコン内で行う処理について説明します。"
+>
+  <PageHero
+    eyebrow="プライバシー"
+    title="開発者が、会話を受け取ることはありません。"
+    description="読み上げくんは利用者のパソコンで動きます。広告、アクセス解析、開発者が運営する中継サーバーはありません。"
+  />
+
+  <article class="shell policy-content">
+    <section>
+      <h2>通信する相手</h2>
+      <p>読み上げくんが通信するのは、利用者が使うために選んだ次のサービスだけです。</p>
+      <div class="policy-cards">
+        <div><strong>Discord</strong><p>メッセージを受け取り、通話へ音声を届けます。</p></div>
+        <div><strong>AivisSpeechまたはVOICEVOX</strong><p>メッセージを音声へ変えます。通常は同じパソコンの中だけで通信します。</p></div>
+        <div><strong>GitHub</strong><p>新しい正式版があるかを確認します。</p></div>
+      </div>
+      <p>
+        開発者がメッセージ、音声、Discordの合言葉を受け取ることはありません。
+        広告会社や分析サービスにも送りません。
+      </p>
+      <aside class="callout warning">
+        <span class="callout-icon" aria-hidden="true">!</span>
+        <div>
+          <strong>声のアプリの接続先を自分で変更した場合</strong>
+          <p>パソコンの外にある接続先を設定すると、読み上げる文章がその相手へ送られます。運営者と利用条件を確認してから使用してください。</p>
+        </div>
+      </aside>
+    </section>
+
+    <section>
+      <h2>保存する情報</h2>
+      <ul class="plain-list">
+        <li><strong>Discordの合言葉</strong><span>Windowsの資格情報マネージャーまたはMacのキーチェーンへ保存します。</span></li>
+        <li><strong>アプリの設定</strong><span>選んだ声、速さ、音量などをパソコン内へ保存します。</span></li>
+        <li><strong>診断情報</strong><span>利用者が「診断情報を保存」を押した場合だけ、選んだファイルへ保存します。</span></li>
+      </ul>
+      <p>動作記録と診断情報には、Discordの合言葉と読み上げた文章を含めません。読み上げた声も音声ファイルとして残しません。</p>
+    </section>
+
+    <section>
+      <h2>公式サイトについて</h2>
+      <p>
+        この公式サイトはCloudflareから静的なページとして配信します。
+        広告、Cookieを使うアクセス解析、利用者を追跡する仕組みは置きません。
+        ページを届けるために必要な一般的な通信記録は、Cloudflare側で短期間処理される場合があります。
+      </p>
+    </section>
+
+    <section>
+      <h2>利用するサービスの案内</h2>
+      <ul class="link-list">
+        <li><a href="https://discord.com/privacy">Discordのプライバシーポリシー <span aria-hidden="true">↗</span></a></li>
+        <li><a href="https://hub.aivis-project.com/privacy-policy">Aivis Projectのプライバシーポリシー <span aria-hidden="true">↗</span></a></li>
+        <li><a href="https://voicevox.hiroshiba.jp/term/">VOICEVOXの利用規約 <span aria-hidden="true">↗</span></a></li>
+        <li><a href="https://docs.github.com/ja/site-policy/privacy-policies/github-general-privacy-statement">GitHubのプライバシーについて <span aria-hidden="true">↗</span></a></li>
+        <li><a href="https://www.cloudflare.com/privacypolicy/">Cloudflareのプライバシーポリシー <span aria-hidden="true">↗</span></a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>お問い合わせ</h2>
+      <p>
+        秘密情報やDiscordの合言葉を含めずに、
+        <a href="https://github.com/yhay81/yomiage-kun/issues">GitHubのお問い合わせ</a>
+        からご連絡ください。安全上の問題は
+        <a href="https://github.com/yhay81/yomiage-kun/security">非公開の連絡窓口</a>
+        をご利用ください。
+      </p>
+    </section>
+
+    <p class="policy-updated">最終更新：2026年7月27日</p>
+  </article>
+</BaseLayout>

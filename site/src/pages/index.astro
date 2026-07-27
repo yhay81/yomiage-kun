@@ -1,0 +1,337 @@
+---
+import { Picture } from "astro:assets";
+import DownloadButton from "../components/DownloadButton.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import heroImage from "../assets/hero-listening.jpg";
+import setupImage from "../assets/setup-guide.jpg";
+
+const description =
+  "読み上げくんは、Discordに届いたメッセージをWindowsやMacから自然な日本語の声で読み上げる無料アプリです。";
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "読み上げくん",
+  applicationCategory: "MultimediaApplication",
+  operatingSystem: "Windows 11, macOS 13 or later",
+  description,
+  url: "https://yomiage.yusuke-hayashi.com/",
+  downloadUrl: "https://github.com/yhay81/yomiage-kun/releases",
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "JPY",
+  },
+};
+---
+
+<BaseLayout description={description}>
+  <script
+    type="application/ld+json"
+    is:inline
+    set:html={JSON.stringify(structuredData)}
+  ></script>
+
+  <section class="hero shell">
+    <div class="hero-copy">
+      <p class="eyebrow">Windows・Macに対応</p>
+      <h1>
+        <span>Discordのメッセージを、</span>
+        <em>やさしい声で。</em>
+      </h1>
+      <p class="hero-lead">
+        ゲーム中も、作業中も。届いたメッセージを、
+        <span class="nowrap">AivisSpeech</span>や
+        <span class="nowrap">VOICEVOX</span>の自然な日本語で読み上げます。
+      </p>
+      <div class="button-row">
+        <DownloadButton />
+        <a class="button secondary" href="/guide/">
+          はじめ方を見る
+          <span class="button-arrow" aria-hidden="true">→</span>
+        </a>
+      </div>
+      <div class="hero-note">
+        <span aria-hidden="true">✓</span>
+        <p>
+          月額料金・広告・開発者の中継サーバーはありません。
+          <small>署名付き正式版の公開を準備しています。</small>
+        </p>
+      </div>
+    </div>
+
+    <div class="hero-art">
+      <div class="hero-image">
+        <Picture
+          src={heroImage}
+          formats={["avif", "webp"]}
+          widths={[560, 840, 1120]}
+          sizes="(max-width: 820px) calc(100vw - 32px), 52vw"
+          alt="パソコンに届いたメッセージが、スピーカーから声になる様子"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </div>
+      <div class="voice-status">
+        <span class="status-pulse" aria-hidden="true"></span>
+        <div>
+          <strong>読み上げ中</strong>
+          <span>「待ち合わせは8時です」</span>
+        </div>
+        <span class="mini-wave" aria-hidden="true">
+          <i></i><i></i><i></i><i></i><i></i>
+        </span>
+      </div>
+      <span class="art-dot art-dot-one" aria-hidden="true"></span>
+      <span class="art-dot art-dot-two" aria-hidden="true"></span>
+    </div>
+  </section>
+
+  <section class="signal-strip" aria-label="読み上げの流れ">
+    <div class="shell signal-flow">
+      <div>
+        <span class="signal-icon chat-icon" aria-hidden="true"></span>
+        <p><small>Discord</small><strong>メッセージが届く</strong></p>
+      </div>
+      <span class="flow-arrow" aria-hidden="true">→</span>
+      <div>
+        <span class="signal-icon app-icon" aria-hidden="true">
+          <i></i><i></i><i></i>
+        </span>
+        <p><small>読み上げくん</small><strong>必要な文章だけ受け取る</strong></p>
+      </div>
+      <span class="flow-arrow" aria-hidden="true">→</span>
+      <div>
+        <span class="signal-icon sound-icon" aria-hidden="true"></span>
+        <p><small>あなたのパソコン</small><strong>日本語の声にする</strong></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section shell" id="features">
+    <div class="section-heading split-heading">
+      <div>
+        <p class="eyebrow">できること</p>
+        <h2>聞くことに集中できる、<br />ちょうどいい読み上げ。</h2>
+      </div>
+      <p>
+        難しい設定や共有サービスは使いません。
+        最初の準備が終われば、いつものパソコンからすぐに始められます。
+      </p>
+    </div>
+
+    <div class="feature-grid">
+      <article class="feature-card feature-main">
+        <div class="feature-symbol voice-symbol" aria-hidden="true">
+          <i></i><i></i><i></i><i></i><i></i>
+        </div>
+        <span class="card-number">01</span>
+        <h3>好きな日本語の声を選べる</h3>
+        <p>
+          AivisSpeechまたはVOICEVOXを自動で見つけ、
+          声を名前から選べます。速さや高さも調整できます。
+        </p>
+      </article>
+      <article class="feature-card">
+        <div class="feature-symbol local-symbol" aria-hidden="true">
+          <span></span>
+        </div>
+        <span class="card-number">02</span>
+        <h3>大切な内容はパソコンの中に</h3>
+        <p>開発者がメッセージやDiscordの合言葉を受け取ることはありません。</p>
+      </article>
+      <article class="feature-card">
+        <div class="feature-symbol free-symbol" aria-hidden="true">¥0</div>
+        <span class="card-number">03</span>
+        <h3>無料で、広告もなし</h3>
+        <p>人数や読み上げ回数による料金はありません。自分で動かすので月額料金も不要です。</p>
+      </article>
+      <article class="feature-card">
+        <div class="feature-symbol desktop-symbol" aria-hidden="true"></div>
+        <span class="card-number">04</span>
+        <h3>WindowsとMacで使える</h3>
+        <p>Windows 11とmacOS 13以降に対応。日本語の画面で迷わず使えます。</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section setup-section">
+    <div class="shell">
+      <div class="section-heading centered-heading">
+        <p class="eyebrow">最初に一度だけ</p>
+        <h2>準備するものは、2つです。</h2>
+        <p>
+          文章を声にするアプリと、Discordの通話へ声を届ける
+          「読み上げ役」を用意します。
+        </p>
+      </div>
+
+      <div class="setup-image-wrap">
+        <Picture
+          src={setupImage}
+          formats={["avif", "webp"]}
+          widths={[640, 960, 1280]}
+          sizes="(max-width: 720px) calc(100vw - 32px), 960px"
+          alt="声のアプリとDiscordの読み上げ役を、安全につなぐ様子"
+          loading="lazy"
+        />
+      </div>
+
+      <div class="setup-cards">
+        <article>
+          <span class="setup-index">1</span>
+          <div>
+            <p class="card-kicker">声を作る</p>
+            <h3>AivisSpeechかVOICEVOX</h3>
+            <p>どちらか一つを入れて起動します。迷った場合はAivisSpeechがおすすめです。</p>
+            <a class="text-link" href="/guide/#voice">
+              声のアプリを準備する <span aria-hidden="true">→</span>
+            </a>
+          </div>
+        </article>
+        <article>
+          <span class="setup-index">2</span>
+          <div>
+            <p class="card-kicker">Discordへ声を届ける</p>
+            <h3>自分専用の読み上げ役</h3>
+            <p>Discordの公式ページで作ります。作成は最初の一度だけで、月額料金もありません。</p>
+            <a class="text-link" href="/guide/#discord">
+              Discordを準備する <span aria-hidden="true">→</span>
+            </a>
+          </div>
+        </article>
+      </div>
+
+      <div class="guide-cta">
+        <div>
+          <span class="guide-cta-mark" aria-hidden="true">?</span>
+          <p>
+            <strong>英語の画面が出ても大丈夫です。</strong>
+            <span>押す場所と、コピーするものを日本語で順番に説明します。</span>
+          </p>
+        </div>
+        <a class="button dark" href="/guide/">
+          画像を見ながら始める
+          <span class="button-arrow" aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section shell everyday-section">
+    <div class="section-heading">
+      <p class="eyebrow">準備が終わったら</p>
+      <h2>ふだんは、3手順だけ。</h2>
+    </div>
+    <ol class="everyday-steps">
+      <li>
+        <span>1</span>
+        <div>
+          <h3>声のアプリを開く</h3>
+          <p>AivisSpeechまたはVOICEVOXを起動します。</p>
+        </div>
+      </li>
+      <li>
+        <span>2</span>
+        <div>
+          <h3>読み上げを始める</h3>
+          <p>読み上げくんの大きなボタンを押します。</p>
+        </div>
+      </li>
+      <li>
+        <span>3</span>
+        <div>
+          <h3>通話へ呼ぶ</h3>
+          <p>Discordのメッセージ欄で <code>/join</code> と入力します。</p>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <section class="privacy-band">
+    <div class="shell privacy-grid">
+      <div>
+        <p class="eyebrow">安心について</p>
+        <h2>大切なものは、<br />あなたのパソコンに。</h2>
+        <a class="text-link light-link" href="/privacy/">
+          プライバシーについて読む <span aria-hidden="true">→</span>
+        </a>
+      </div>
+      <ul>
+        <li>
+          <span aria-hidden="true">✓</span>
+          <p><strong>声を作る処理はパソコンの中</strong>読み上げ内容を開発者のサーバーへ送りません。</p>
+        </li>
+        <li>
+          <span aria-hidden="true">✓</span>
+          <p><strong>合言葉はOSの安全な保管場所へ</strong>設定ファイルや動作記録には残しません。</p>
+        </li>
+        <li>
+          <span aria-hidden="true">✓</span>
+          <p><strong>広告もアクセス解析もなし</strong>利用状況を追跡する仕組みを公式サイトにも置きません。</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section shell faq-section">
+    <div class="section-heading">
+      <p class="eyebrow">よくある質問</p>
+      <h2>つまずきやすいところに答えます。</h2>
+    </div>
+    <div class="faq-list">
+      <details>
+        <summary>AivisSpeechとVOICEVOXは、両方必要ですか？</summary>
+        <p>いいえ。使いたい声に合わせて、どちらか一つだけ入れてください。読み上げ中は、選んだ声のアプリも起動しておきます。</p>
+      </details>
+      <details>
+        <summary>Discordの「読み上げ役」は、別の人のアカウントですか？</summary>
+        <p>いいえ。あなたが管理する専用の小さな役です。ほかの人のログイン情報は使いません。準備は最初の一度だけです。</p>
+      </details>
+      <details>
+        <summary>コピーしたDiscordの合言葉は、誰かに送りますか？</summary>
+        <p>送りません。読み上げくんへ貼り付けるだけです。パスワードと同じものなので、スクリーンショットや問い合わせにも載せないでください。</p>
+      </details>
+      <details>
+        <summary>「声のアプリが見つかりません」と表示されます</summary>
+        <p>声のアプリが完全に起動してから、読み上げくんの「自動で見つける」をもう一度押してください。</p>
+      </details>
+      <details>
+        <summary>家族やチームでも使えますか？</summary>
+        <p>はい。動かすパソコンを一台決めれば使えます。読み上げ中はそのパソコンを起動し、Discordの合言葉はほかの人へ渡さないでください。</p>
+      </details>
+    </div>
+    <a class="button secondary faq-more" href="/help/">
+      ほかの解決方法を見る
+      <span class="button-arrow" aria-hidden="true">→</span>
+    </a>
+  </section>
+
+  <section class="download-band">
+    <div class="shell">
+      <span class="download-wave" aria-hidden="true">
+        <i></i><i></i><i></i><i></i><i></i>
+      </span>
+      <p class="eyebrow">無料・広告なし</p>
+      <h2>メッセージを、声で受け取ろう。</h2>
+      <p>Windows 11とmacOS 13以降に対応しています。</p>
+      <DownloadButton tone="light" />
+    </div>
+  </section>
+
+  <script is:inline>
+    (() => {
+      const platform =
+        navigator.userAgentData?.platform ?? navigator.platform ?? "";
+      const label = /mac/i.test(platform)
+        ? "Mac版の公開状況を見る"
+        : /win/i.test(platform)
+          ? "Windows版の公開状況を見る"
+          : "正式版の公開状況を見る";
+
+      document
+        .querySelectorAll("[data-download-label]")
+        .forEach((element) => (element.textContent = label));
+    })();
+  </script>
+</BaseLayout>

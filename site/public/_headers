@@ -1,0 +1,17 @@
+# すべてのページを安全な既定値で配信する
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), display-capture=(), geolocation=(), microphone=(), payment=(), usb=()
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+
+# ファイル名に内容のハッシュが付くため、長期間安全に保存できる
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# 確認用のworkers.dev URLは検索結果へ表示しない
+https://:version.:subdomain.workers.dev/*
+  X-Robots-Tag: noindex

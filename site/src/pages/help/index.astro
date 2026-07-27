@@ -1,0 +1,183 @@
+---
+import PageHero from "../../components/PageHero.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="困ったとき"
+  description="読み上げくんが声のアプリやDiscordにつながらない場合の確認方法を、エラーごとに分かりやすく説明します。"
+>
+  <PageHero
+    eyebrow="困ったとき"
+    title="まず、3つだけ確認しましょう。"
+    description="多くの場合は、起動する順番かDiscordの許可を確認すると直ります。秘密の合言葉は問い合わせへ送らないでください。"
+  />
+
+  <div class="shell help-layout">
+    <section class="quick-check">
+      <h2>最初に確認すること</h2>
+      <ol>
+        <li>
+          <span>1</span>
+          <p><strong>声のアプリは開いていますか？</strong>AivisSpeechまたはVOICEVOXの画面が使える状態になるまで待ちます。</p>
+        </li>
+        <li>
+          <span>2</span>
+          <p><strong>読み上げくんは「読み上げ中」ですか？</strong>止まっている場合は「読み上げを始める」を押します。</p>
+        </li>
+        <li>
+          <span>3</span>
+          <p><strong>Discordで <code>/join</code> を使いましたか？</strong>先に自分が通話へ入ってから、読み上げたいメッセージ欄で実行します。</p>
+        </li>
+      </ol>
+    </section>
+
+    <div class="help-groups">
+      <section id="voice">
+        <p class="doc-kicker">声のアプリ</p>
+        <h2>声が出ない・アプリが見つからない</h2>
+        <div class="help-list">
+          <details open>
+            <summary>「AivisSpeechが見つかりません」と表示される</summary>
+            <div>
+              <ol>
+                <li>AivisSpeechを起動します。</li>
+                <li>最初の画面が使える状態になるまで待ちます。</li>
+                <li>読み上げくんの設定で <b>自動で見つける</b> を押します。</li>
+                <li>直らない場合は、AivisSpeechを先に開いてから読み上げくんを開き直します。</li>
+              </ol>
+              <p class="technical-note">通常の接続先は <code>http://127.0.0.1:10101</code> です。手動で変えた場合は、この値へ戻してください。</p>
+            </div>
+          </details>
+          <details>
+            <summary>「VOICEVOXが見つかりません」と表示される</summary>
+            <div>
+              <ol>
+                <li>VOICEVOXを起動します。</li>
+                <li>声を選べる画面になるまで待ちます。</li>
+                <li>読み上げくんの設定で <b>自動で見つける</b> を押します。</li>
+              </ol>
+              <p class="technical-note">通常の接続先は <code>http://127.0.0.1:50021</code> です。</p>
+            </div>
+          </details>
+          <details>
+            <summary>「この声を試す」を押しても聞こえない</summary>
+            <div>
+              <ul>
+                <li>パソコン本体の音量と、使っているスピーカーを確認します。</li>
+                <li>声の一覧から別の声を選び、もう一度試します。</li>
+                <li>VPNやセキュリティソフトを一時停止する前に、パソコン内の通信を遮っていないか設定を確認します。</li>
+              </ul>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <section id="discord">
+        <p class="doc-kicker">Discord</p>
+        <h2>読み上げ役が動かない</h2>
+        <div class="help-list">
+          <details>
+            <summary>読み上げ役がオンラインにならない</summary>
+            <div>
+              <ol>
+                <li>読み上げくんで <b>読み上げを始める</b> を押します。</li>
+                <li>設定でDiscordの合言葉をもう一度 <b>確認して保存</b> します。</li>
+                <li>DiscordのBotページで合言葉を作り直した場合は、新しいものを読み上げくんへ保存し直します。</li>
+                <li><b>Message Content Intent</b> がオンになっているか確認します。</li>
+              </ol>
+            </div>
+          </details>
+          <details>
+            <summary><code>/join</code> が表示されない</summary>
+            <div>
+              <ol>
+                <li>読み上げ役をDiscordサーバーから一度外します。</li>
+                <li>読み上げくんの <b>サーバーに追加</b> から、もう一度追加します。</li>
+                <li>数分待ってからDiscordを終了し、開き直します。</li>
+              </ol>
+            </div>
+          </details>
+          <details>
+            <summary>通話へ入るが、投稿を読み上げない</summary>
+            <div>
+              <ul>
+                <li>読み上げたいメッセージ欄で <code>/join</code> を実行します。</li>
+                <li><code>/status</code> で、選ばれているメッセージ欄を確認します。</li>
+                <li>DiscordのBotページで <b>Message Content Intent</b> をオンにします。</li>
+                <li>許可を変更したあとは、読み上げくんを一度停止して始め直します。</li>
+              </ul>
+            </div>
+          </details>
+          <details>
+            <summary>ボイスチャンネルへ入れない</summary>
+            <div>
+              <ul>
+                <li><code>/join</code> を使う本人が、先に通話へ入ります。</li>
+                <li>ステージチャンネルではなく、通常のボイスチャンネルで試します。</li>
+                <li>読み上げ役に「チャンネルを見る」「接続」「発言」の許可があるか、サーバー管理者へ確認します。</li>
+              </ul>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <section id="computer">
+        <p class="doc-kicker">パソコン</p>
+        <h2>インストールや動作で困った</h2>
+        <div class="help-list">
+          <details>
+            <summary>Windowsで「パソコンが保護されました」と表示される</summary>
+            <div>
+              <p>
+                ダウンロードした場所が
+                <a href="https://github.com/yhay81/yomiage-kun/releases">公式のリリースページ</a>
+                か確認してください。署名のない開発版は一般利用にはおすすめしません。
+                詳しくは<a href="/code-signing/">アプリの署名について</a>をご覧ください。
+              </p>
+            </div>
+          </details>
+          <details>
+            <summary>WindowsでWebView2を求められる</summary>
+            <div>
+              <p>インターネットに接続した状態でインストーラを開き直してください。会社や学校のパソコンでは、管理者によるMicrosoft Edge WebView2 Runtimeの準備が必要な場合があります。</p>
+            </div>
+          </details>
+          <details>
+            <summary>Macでアプリを開けない</summary>
+            <div>
+              <p>署名と公証が済んだ公式版を使ってください。Macの安全機能を恒久的に無効にする操作は行わないでください。</p>
+            </div>
+          </details>
+          <details>
+            <summary>読み上げが遅れる・一部が読まれない</summary>
+            <div>
+              <ul>
+                <li>声のアプリで軽いモデルを選びます。</li>
+                <li>読み上げ専用のメッセージ欄を用意します。</li>
+                <li><code>/skip</code> で長い読み上げを飛ばします。</li>
+                <li>同じパソコンから同時につなぐサーバーを減らします。</li>
+              </ul>
+            </div>
+          </details>
+        </div>
+      </section>
+    </div>
+
+    <section class="support-panel">
+      <div>
+        <p class="eyebrow">まだ直らないとき</p>
+        <h2>秘密の合言葉を除いて、お知らせください。</h2>
+        <p>
+          読み上げくんの「診断情報を保存」を使うと、
+          合言葉や読み上げた文章を含まない確認用ファイルを作れます。
+          内容を確認してからお問い合わせへ添付してください。
+        </p>
+      </div>
+      <a class="button light" href="https://github.com/yhay81/yomiage-kun/issues">
+        お問い合わせを開く
+        <span aria-hidden="true">↗</span>
+      </a>
+    </section>
+  </div>
+</BaseLayout>

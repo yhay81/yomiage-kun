@@ -4,9 +4,9 @@ Discordに届いたメッセージを、やさしい日本語の声で読み上�
 
 WindowsとMacで使えます。月額料金や広告はありません。
 
-[公式サイト](https://yomiage.yusuke-hayashi.com/) ・ [ダウンロード](https://github.com/yhay81/yomiage-kun/releases) ・ [困ったとき](docs/troubleshooting.md)
+[公式サイト](https://yomiage.yusuke-hayashi.com/) ・ [ダウンロード](https://github.com/yhay81/yomiage-kun/releases) ・ [困ったとき](https://yomiage.yusuke-hayashi.com/help/)
 
-[![読み上げくん](https://yomiage.yusuke-hayashi.com/og.jpg)](https://yomiage.yusuke-hayashi.com/)
+[![読み上げくん](https://yomiage.yusuke-hayashi.com/og.png)](https://yomiage.yusuke-hayashi.com/)
 
 ## こんなときに便利です
 
