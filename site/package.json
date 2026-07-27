@@ -1,0 +1,30 @@
+{
+  "name": "@yomiage-kun/site",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "test:html": "node scripts/verify-html.mjs",
+    "verify": "npm run check && npm run build && npm run test:html",
+    "deploy": "npm run build && wrangler deploy",
+    "deploy:preview": "npm run build && wrangler versions upload"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "3.7.3",
+    "astro": "7.1.3",
+    "sharp": "0.35.3"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.9",
+    "parse5": "8.0.1",
+    "typescript": "6.0.3",
+    "wrangler": "4.114.0"
+  }
+}

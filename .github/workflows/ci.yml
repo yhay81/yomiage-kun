@@ -62,3 +62,26 @@ jobs:
       - run: npm audit --audit-level=high
       - run: npm test
       - run: npm run build
+
+  site:
+    name: 公式サイト
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Node.jsを準備
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - name: 必要なものを準備
+        run: npm ci
+      - name: 安全性を確認
+        run: npm audit --audit-level=high
+      - name: 表示できる形へまとめる
+        run: npm run verify

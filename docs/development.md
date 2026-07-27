@@ -34,6 +34,21 @@ npm --prefix apps/desktop run tauri dev
 
 AivisSpeech または VOICEVOX を起動すると接続テストと実際の読み上げを確認できます。実 Bot を使う統合テストでは、個人用のテストサーバーとテスト Bot を使用してください。
 
+## 公式サイト
+
+公式サイトは`site`にあるAstroプロジェクトです。
+
+```powershell
+npm --prefix site ci
+npm --prefix site run dev
+```
+
+Cloudflareへ配信する前は、次のコマンドで型と静的ビルドを確認します。
+
+```powershell
+npm --prefix site run verify
+```
+
 ## 品質チェック
 
 ```powershell
@@ -41,6 +56,7 @@ cargo fmt --all -- --check
 cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
 npm --prefix apps/desktop run build
+npm --prefix site run verify
 npm --prefix apps/desktop run tauri build
 ```
 

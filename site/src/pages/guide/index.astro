@@ -1,0 +1,323 @@
+---
+import { Picture } from "astro:assets";
+import PageHero from "../../components/PageHero.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import setupImage from "../../assets/setup-guide.jpg";
+---
+
+<BaseLayout
+  title="はじめ方"
+  description="読み上げくんを使い始めるために、AivisSpeechまたはVOICEVOXとDiscordの読み上げ役を準備する手順を、日本語で順番に説明します。"
+>
+  <PageHero
+    eyebrow="はじめ方"
+    title="このページの順番で、準備できます。"
+    description="初めて見る英語のボタンも、一つずつ説明します。作業時間の目安は10分ほどです。"
+  />
+
+  <div class="shell doc-grid">
+    <aside class="doc-nav">
+      <p>このページの内容</p>
+      <nav aria-label="はじめ方の目次">
+        <a href="#before">準備するもの</a>
+        <a href="#install">読み上げくんを入れる</a>
+        <a href="#voice">声のアプリを準備する</a>
+        <a href="#discord">Discordを準備する</a>
+        <a href="#test">声を試す</a>
+        <a href="#everyday">ふだんの使い方</a>
+      </nav>
+      <a class="doc-help-link" href="/help/">困ったときはこちら →</a>
+    </aside>
+
+    <article class="doc-content">
+      <figure class="doc-image">
+        <Picture
+          src={setupImage}
+          formats={["avif", "webp"]}
+          widths={[640, 960, 1280]}
+          sizes="(max-width: 900px) calc(100vw - 32px), 760px"
+          alt="声のアプリとDiscordの読み上げ役を、安全につなぐ様子"
+          loading="eager"
+        />
+      </figure>
+
+      <section id="before">
+        <p class="doc-kicker">準備</p>
+        <h2>最初に用意するもの</h2>
+        <p>
+          読み上げくんは、あなたのパソコンで動きます。
+          共有サービスへの登録や有料プランはありません。
+        </p>
+        <ul class="check-list">
+          <li><span aria-hidden="true">✓</span>Windows 11またはmacOS 13以降のパソコン</li>
+          <li><span aria-hidden="true">✓</span>いつも使っているDiscordアカウント</li>
+          <li><span aria-hidden="true">✓</span>読み上げ役を追加できるDiscordサーバー</li>
+          <li><span aria-hidden="true">✓</span>AivisSpeechまたはVOICEVOXのどちらか一つ</li>
+        </ul>
+        <aside class="callout soft">
+          <span class="callout-icon" aria-hidden="true">i</span>
+          <div>
+            <strong>Discordサーバーを自分で作った方なら、そのまま進められます。</strong>
+            <p>ほかの方が管理するサーバーでは、アプリを追加できるか管理者へ確認してください。</p>
+          </div>
+        </aside>
+      </section>
+
+      <section id="install">
+        <p class="doc-kicker">手順 1</p>
+        <h2>読み上げくんを入れる</h2>
+        <ol class="steps-list">
+          <li>
+            <span>1</span>
+            <div>
+              <h3>ダウンロードページを開く</h3>
+              <p>
+                <a href="https://github.com/yhay81/yomiage-kun/releases">正式版のページ</a>
+                を開きます。署名付き正式版は現在公開準備中です。
+              </p>
+            </div>
+          </li>
+          <li>
+            <span>2</span>
+            <div>
+              <h3>お使いのパソコンに合うものを選ぶ</h3>
+              <p>Windowsは名前の最後が <code>.exe</code>、Macは <code>.dmg</code> のファイルを一つ選びます。</p>
+            </div>
+          </li>
+          <li>
+            <span>3</span>
+            <div>
+              <h3>日本語の案内に沿って入れる</h3>
+              <p>ダウンロードしたファイルを開き、画面に表示される案内どおりに進みます。</p>
+            </div>
+          </li>
+        </ol>
+        <aside class="callout warning">
+          <span class="callout-icon" aria-hidden="true">!</span>
+          <div>
+            <strong>「パソコンが保護されました」と表示された場合</strong>
+            <p>
+              正式版の署名状況をダウンロードページで確認してください。
+              出所が分からないファイルや、第三者が配ったファイルは開かないでください。
+              詳しくは<a href="/code-signing/">アプリの署名について</a>をご覧ください。
+            </p>
+          </div>
+        </aside>
+      </section>
+
+      <section id="voice">
+        <p class="doc-kicker">手順 2</p>
+        <h2>声のアプリを準備する</h2>
+        <p>
+          文章を日本語の声にするために、
+          <span class="nowrap">AivisSpeech</span>または
+          <span class="nowrap">VOICEVOX</span>を使います。
+          両方を入れる必要はありません。
+        </p>
+
+        <div class="choice-cards">
+          <section>
+            <span class="recommend-badge">迷ったらこちら</span>
+            <h3>AivisSpeech</h3>
+            <p>感情のある自然な声を使いたい方におすすめです。</p>
+            <a class="button small secondary" href="https://aivis-project.com/AivisSpeech">
+              公式ページを開く <span aria-hidden="true">↗</span>
+            </a>
+          </section>
+          <section>
+            <span class="recommend-badge quiet">声を選んで楽しむ</span>
+            <h3>VOICEVOX</h3>
+            <p>いろいろなキャラクターの声から選びたい方におすすめです。</p>
+            <a class="button small secondary" href="https://voicevox.hiroshiba.jp/">
+              公式ページを開く <span aria-hidden="true">↗</span>
+            </a>
+          </section>
+        </div>
+
+        <ol class="steps-list compact-steps">
+          <li>
+            <span>1</span>
+            <div>
+              <h3>声のアプリを入れて起動する</h3>
+              <p>最初の画面が表示され、操作できる状態になるまで待ちます。</p>
+            </div>
+          </li>
+          <li>
+            <span>2</span>
+            <div>
+              <h3>読み上げくんの「設定」を開く</h3>
+              <p>「声を選ぶ」にある <b>自動で見つける</b> を押します。</p>
+            </div>
+          </li>
+          <li>
+            <span>3</span>
+            <div>
+              <h3>声を選んで試す</h3>
+              <p>声を名前から選び、<b>この声を試す</b> を押します。聞こえたら保存します。</p>
+            </div>
+          </li>
+        </ol>
+
+        <aside class="callout soft">
+          <span class="callout-icon" aria-hidden="true">?</span>
+          <div>
+            <strong>声のアプリが見つからないとき</strong>
+            <p>
+              声のアプリを先に起動し、完全に開いてから
+              <b>自動で見つける</b>を押し直します。それでも見つからない場合は
+              <a href="/help/#voice">声が出ないときの確認</a>へ進んでください。
+            </p>
+          </div>
+        </aside>
+      </section>
+
+      <section id="discord">
+        <p class="doc-kicker">手順 3</p>
+        <h2>Discordに「読み上げ役」を作る</h2>
+        <p>
+          読み上げ役は、メッセージを受け取って通話へ声を流す、
+          あなた専用の小さな役です。別の人のアカウントではありません。
+        </p>
+
+        <div class="why-box">
+          <span class="helper-bot" aria-hidden="true">
+            <i></i>
+          </span>
+          <div>
+            <strong>作るのは最初の一度だけです。</strong>
+            <p>開発者への申し込みや月額料金はありません。同じ読み上げ役を、自分が管理する複数のサーバーにも追加できます。</p>
+          </div>
+        </div>
+
+        <ol class="steps-list portal-list">
+          <li>
+            <span>1</span>
+            <div>
+              <h3>Discordの公式ページを開く</h3>
+              <p>
+                読み上げくんの設定にある <b>Discordの開発者ページを開く</b> を押します。
+                または
+                <a href="https://discord.com/developers/applications">Discord Developer Portal</a>
+                を開き、いつものDiscordアカウントでログインします。
+              </p>
+            </div>
+          </li>
+          <li>
+            <span>2</span>
+            <div>
+              <h3>読み上げ役を作る</h3>
+              <p>
+                右上の <b>New Application</b> を押します。
+                名前に「読み上げくん」と入力し、確認を入れて <b>Create</b> を押します。
+              </p>
+              <p class="translation"><b>New Application</b> は「新しい読み上げ役を作る」という意味です。</p>
+            </div>
+          </li>
+          <li>
+            <span>3</span>
+            <div>
+              <h3>メッセージを読む許可を出す</h3>
+              <p>
+                左側の <b>Bot</b> を開き、下にある
+                <b>Message Content Intent</b> だけをオンにします。
+                <b>Save Changes</b> が表示されたら押します。
+              </p>
+              <p class="translation">ほかの二つの許可はオンにしなくて大丈夫です。</p>
+            </div>
+          </li>
+          <li>
+            <span>4</span>
+            <div>
+              <h3>専用の合言葉をコピーする</h3>
+              <p>
+                同じBotページの上にある <b>Reset Token</b> を押し、
+                本人確認のあとに表示された長い文字列を <b>Copy</b> でコピーします。
+              </p>
+            </div>
+          </li>
+          <li>
+            <span>5</span>
+            <div>
+              <h3>読み上げくんへ保存する</h3>
+              <p>
+                読み上げくんへ戻り、<b>ボットのトークン</b>欄へ貼り付けて
+                <b>確認して保存</b>を押します。
+              </p>
+              <p class="translation">「安全に保存しました」と表示されたら完了です。</p>
+            </div>
+          </li>
+          <li>
+            <span>6</span>
+            <div>
+              <h3>使うサーバーへ追加する</h3>
+              <p>
+                読み上げくんの <b>サーバーに追加</b> を押します。
+                読み上げたいDiscordサーバーを選び、表示された内容を確認して
+                <b>認証</b>を押します。
+              </p>
+            </div>
+          </li>
+        </ol>
+
+        <aside class="callout danger">
+          <span class="callout-icon lock" aria-hidden="true"></span>
+          <div>
+            <strong>コピーした合言葉は、パスワードと同じです。</strong>
+            <p>
+              スクリーンショット、チャット、問い合わせ、GitHubへ貼らないでください。
+              読み上げくんはWindowsまたはMacの安全な保管場所へ保存します。
+              なくした場合は <b>Reset Token</b> で新しく作り直せます。
+            </p>
+          </div>
+        </aside>
+      </section>
+
+      <section id="test">
+        <p class="doc-kicker">手順 4</p>
+        <h2>声を試してみる</h2>
+        <ol class="steps-list">
+          <li><span>1</span><div><h3>声のアプリを起動する</h3><p>AivisSpeechまたはVOICEVOXを開いておきます。</p></div></li>
+          <li><span>2</span><div><h3>読み上げを始める</h3><p>読み上げくんで <b>読み上げを始める</b> を押します。</p></div></li>
+          <li><span>3</span><div><h3>Discordの通話へ入る</h3><p>自分がいつものボイスチャンネルへ参加します。</p></div></li>
+          <li><span>4</span><div><h3>読み上げ役を呼ぶ</h3><p>読み上げたいメッセージ欄で <code>/join</code> と入力します。</p></div></li>
+          <li><span>5</span><div><h3>短い文章を送る</h3><p>声が聞こえたら、すべての準備が完了です。</p></div></li>
+        </ol>
+
+        <div class="success-panel">
+          <span aria-hidden="true">✓</span>
+          <div>
+            <strong>準備完了です</strong>
+            <p>次回からは、声のアプリを開いて「読み上げを始める」を押すだけです。</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="everyday">
+        <p class="doc-kicker">ふだんの使い方</p>
+        <h2>Discordで使える言葉</h2>
+        <p>Discordのメッセージ欄で次の言葉を選ぶと、読み上げ役を操作できます。</p>
+        <div class="command-list">
+          <div><code>/join</code><p><strong>読み上げを始める</strong>あなたがいる通話へ入り、今のメッセージ欄を読み上げます。</p></div>
+          <div><code>/leave</code><p><strong>読み上げを終える</strong>読み上げを止めて、通話から退出します。</p></div>
+          <div><code>/skip</code><p><strong>今の声を飛ばす</strong>長い読み上げを途中で止め、次へ進みます。</p></div>
+          <div><code>/status</code><p><strong>現在の状態を確認する</strong>どのメッセージ欄を読んでいるか確認します。</p></div>
+        </div>
+        <aside class="callout soft">
+          <span class="callout-icon" aria-hidden="true">i</span>
+          <div>
+            <strong>ウィンドウを閉じても、読み上げは続きます。</strong>
+            <p>完全に終える場合は、WindowsのタスクトレイまたはMacのメニューバーにある読み上げくんから「終了」を選びます。</p>
+          </div>
+        </aside>
+      </section>
+
+      <div class="doc-next">
+        <p>うまく動かないところがありますか？</p>
+        <a class="button primary" href="/help/">
+          困ったときの確認へ
+          <span class="button-arrow" aria-hidden="true">→</span>
+        </a>
+      </div>
+    </article>
+  </div>
+</BaseLayout>

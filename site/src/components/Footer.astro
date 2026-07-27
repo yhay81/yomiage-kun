@@ -1,0 +1,39 @@
+---
+import Brand from "./Brand.astro";
+---
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a class="brand" href="/">
+        <Brand compact />
+      </a>
+      <p>Discordのメッセージを、やさしい声で。</p>
+    </div>
+
+    <nav aria-label="補足ページ">
+      <div>
+        <strong>使い方</strong>
+        <a href="/guide/">はじめ方</a>
+        <a href="/help/">困ったとき</a>
+        <a href="https://github.com/yhay81/yomiage-kun/releases">ダウンロード</a>
+      </div>
+      <div>
+        <strong>安心について</strong>
+        <a href="/privacy/">プライバシー</a>
+        <a href="/code-signing/">アプリの署名</a>
+        <a href="https://github.com/yhay81/yomiage-kun/security">安全上の連絡</a>
+      </div>
+      <div>
+        <strong>プロジェクト</strong>
+        <a href="https://github.com/yhay81/yomiage-kun">GitHub</a>
+        <a href="https://github.com/yhay81/yomiage-kun/issues">お問い合わせ</a>
+        <a href="https://github.com/yhay81/yomiage-kun/blob/master/LICENSE">利用条件</a>
+      </div>
+    </nav>
+  </div>
+  <div class="footer-bottom">
+    <small>© 2026 読み上げくん</small>
+    <small>広告やアクセス解析は使用していません。</small>
+  </div>
+</footer>
