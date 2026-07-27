@@ -29,7 +29,7 @@ Cloudflare Workers BuildsでGitHubリポジトリを接続し、次の値を使�
 - ビルドコマンド: `npm run build`
 - 配信コマンド: `npm run deploy:preview`（本番ブランチ以外）
 - 本番配信コマンド: `npx wrangler deploy`
-- 本番ブランチ: `master`
+- 本番ブランチ: `main`
 
 `wrangler.jsonc`には静的ファイルのみを配信する設定があります。SSRやデータベースは使用しません。
 
