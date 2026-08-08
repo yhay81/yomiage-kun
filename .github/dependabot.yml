@@ -5,26 +5,30 @@ updates:
     schedule:
       interval: monthly
     groups:
-      rust:
-        patterns: ["*"]
+      all-dependencies:
+        patterns:
+          - "*"
   - package-ecosystem: npm
     directory: /apps/desktop
     schedule:
       interval: monthly
     groups:
-      frontend:
-        patterns: ["*"]
+      all-dependencies:
+        patterns:
+          - "*"
   - package-ecosystem: npm
     directory: /site
     schedule:
       interval: monthly
     groups:
-      website:
-        patterns: ["*"]
+      all-dependencies:
+        patterns:
+          - "*"
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: monthly
     groups:
-      actions:
-        patterns: ["*"]
+      all-dependencies:
+        patterns:
+          - "*"
