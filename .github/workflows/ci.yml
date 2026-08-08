@@ -1,8 +1,6 @@
 name: CI
 
 on:
-  push:
-    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -20,6 +18,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest, macos-latest]
+    timeout-minutes: 1
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -44,6 +43,7 @@ jobs:
 
   frontend:
     name: Frontend
+    timeout-minutes: 1
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -68,6 +68,7 @@ jobs:
 
   site:
     name: 公式サイト
+    timeout-minutes: 1
     runs-on: ubuntu-latest
     defaults:
       run:

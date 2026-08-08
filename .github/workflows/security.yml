@@ -1,11 +1,9 @@
 name: Security
 
 on:
-  push:
-    branches: [main]
   pull_request:
   schedule:
-    - cron: "23 18 * * 1"
+    - cron: "26 13 * * 5"
   workflow_dispatch:
 
 permissions:
@@ -14,6 +12,7 @@ permissions:
 jobs:
   secrets:
     name: Secret scan
+    timeout-minutes: 1
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -26,6 +25,7 @@ jobs:
 
   dependencies:
     name: Rust dependencies and licenses
+    timeout-minutes: 1
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -39,6 +39,7 @@ jobs:
   dependency-review:
     name: Dependency review
     if: github.event_name == 'pull_request'
+    timeout-minutes: 1
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -50,6 +51,7 @@ jobs:
 
   codeql:
     name: CodeQL
+    timeout-minutes: 1
     runs-on: ubuntu-latest
     permissions:
       contents: read
