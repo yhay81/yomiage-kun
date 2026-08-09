@@ -2,11 +2,14 @@
 
 ## 前提
 
-GitHub Actions が Windows x64、macOS Apple Silicon、macOS Intel の bundle を作成します。公開用リリースではコード署名を必須とします。
+GitHub Actions が Windows x64、macOS Apple Silicon、macOS Intel の bundle を作成します。OSコード署名は導入準備中で、署名secretsが設定されている場合のみ署名・公証を必須検証します。未設定の場合は未署名で公開し、リリースノートに明記のうえ`SHA256SUMS.txt`での検証を案内します。
 
-必要な GitHub Actions secrets:
+必須の GitHub Actions secrets(自動更新の署名):
 
 - `TAURI_SIGNING_PRIVATE_KEY` / `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`
+
+OS署名導入後に追加する secrets:
+
 - `WINDOWS_CERTIFICATE` / `WINDOWS_CERTIFICATE_PASSWORD`
 - `APPLE_CERTIFICATE` / `APPLE_CERTIFICATE_PASSWORD` / `APPLE_SIGNING_IDENTITY`
 - `APPLE_ID` / `APPLE_PASSWORD` / `APPLE_TEAM_ID`
@@ -39,6 +42,6 @@ Windows証明書はPFXをBase64化して登録します。macOSはDeveloper ID A
 
 ## 公開
 
-`vX.Y.Z` のannotated tagを作成してpushするとrelease workflowがbundleを作ります。Actions画面から手動実行する場合も、同じ`vX.Y.Z`を入力します。署名用secretが一つでも不足している場合は、未署名版を作らずに停止します。成果物はDraft Releaseとして生成し、署名、公証、チェックサム、実機確認が終わってから公開します。
+`vX.Y.Z` のannotated tagを作成してpushするとrelease workflowがbundleを作ります。Actions画面から手動実行する場合も、同じ`vX.Y.Z`を入力します。自動更新用の`TAURI_SIGNING_*`が不足している場合は停止します。OS署名secretsが揃っている場合のみ署名・公証を実行し検証します(署名導入後はこの状態を必須とします)。成果物はDraft Releaseとして生成し、チェックサムと確認が終わってから公開します。
 
-署名 secrets が設定されていない fork では CI の compile check のみ利用してください。未署名 bundle を公式 Release として公開しないでください。
+fork では公式 Release を作成しないでください。

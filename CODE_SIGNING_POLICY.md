@@ -1,8 +1,10 @@
 # Code signing policy
 
-読み上げくんのWindows版は、公開前に自動ビルドの出所と内容を確認し、署名を付けます。
+読み上げくんのWindows版は、公開前に自動ビルドの出所と内容を確認し、署名を付けることを目指しています。
 
-Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by [SignPath Foundation](https://signpath.org/).
+**現在の状態(2026-08-09)**: コード署名は導入準備中です。SignPath Foundationへの無料オープンソース署名を申請中で、承認までの公開版は未署名です。改ざんの有無はリリースに添付する`SHA256SUMS.txt`で確認できます。
+
+署名導入後: Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by [SignPath Foundation](https://signpath.org/).
 
 ## 担当
 

@@ -51,6 +51,9 @@ jobs:
     timeout-minutes: 1
     runs-on: ubuntu-latest
     permissions: {}
+    outputs:
+      windows_signing: ${{ steps.detect.outputs.windows_signing }}
+      apple_signing: ${{ steps.detect.outputs.apple_signing }}
     env:
       TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
       TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
@@ -63,22 +66,29 @@ jobs:
       APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
       APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
     steps:
-      - name: Require every signing secret
+      - id: detect
+        name: Require updater key and detect optional OS signing
         shell: bash
         run: |
           missing=()
-          for name in \
-            TAURI_SIGNING_PRIVATE_KEY TAURI_SIGNING_PRIVATE_KEY_PASSWORD \
-            WINDOWS_CERTIFICATE WINDOWS_CERTIFICATE_PASSWORD \
-            APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD APPLE_SIGNING_IDENTITY \
-            APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID
-          do
+          for name in TAURI_SIGNING_PRIVATE_KEY TAURI_SIGNING_PRIVATE_KEY_PASSWORD; do
             if [ -z "${!name}" ]; then missing+=("$name"); fi
           done
           if [ "${#missing[@]}" -gt 0 ]; then
-            printf 'Missing required release secrets: %s\n' "${missing[*]}"
+            printf 'Missing required updater signing secrets: %s\n' "${missing[*]}"
             exit 1
           fi
+          windows_signing=true
+          for name in WINDOWS_CERTIFICATE WINDOWS_CERTIFICATE_PASSWORD; do
+            if [ -z "${!name}" ]; then windows_signing=false; fi
+          done
+          apple_signing=true
+          for name in APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD APPLE_SIGNING_IDENTITY APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID; do
+            if [ -z "${!name}" ]; then apple_signing=false; fi
+          done
+          echo "windows_signing=$windows_signing" >> "$GITHUB_OUTPUT"
+          echo "apple_signing=$apple_signing" >> "$GITHUB_OUTPUT"
+          echo "Windows code signing: $windows_signing / Apple signing+notarization: $apple_signing"
 
   windows:
     name: Windows x64
@@ -101,6 +111,7 @@ jobs:
       - run: npm ci
         working-directory: apps/desktop
       - name: Import Windows signing certificate
+        if: needs.verify-secrets.outputs.windows_signing == 'true'
         shell: pwsh
         env:
           WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
@@ -123,7 +134,11 @@ jobs:
             }
           } | ConvertTo-Json -Depth 5
           Set-Content -LiteralPath (Join-Path $env:RUNNER_TEMP "tauri.windows-signing.json") -Value $config
-      - name: Build signed installer and draft release
+      - name: Prepare unsigned build config
+        if: needs.verify-secrets.outputs.windows_signing != 'true'
+        shell: pwsh
+        run: Set-Content -LiteralPath (Join-Path $env:RUNNER_TEMP "tauri.windows-signing.json") -Value '{}'
+      - name: Build installer and draft release
         uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -140,13 +155,14 @@ jobs:
             - Appleシリコン搭載Mac: `読み上げくん_*_aarch64.dmg`
             - Intel搭載Mac: `読み上げくん_*_x64.dmg`
 
-            すべてのインストーラは署名済みです。変更内容はCHANGELOGを確認してください。
+            コード署名は導入準備中です。ダウンロード後は`SHA256SUMS.txt`で改ざんがないか確認できます。macOSで開けない場合は、アプリを右クリックして「開く」を選んでください。変更内容はCHANGELOGを確認してください。
 
             Code signing policy: https://github.com/yhay81/yomiage-kun/blob/main/CODE_SIGNING_POLICY.md
           releaseDraft: true
           prerelease: false
           args: --bundles nsis --config "${{ runner.temp }}\tauri.windows-signing.json"
       - name: Verify Authenticode signature
+        if: needs.verify-secrets.outputs.windows_signing == 'true'
         shell: pwsh
         run: |
           $installer = Get-ChildItem target -Recurse -Filter "*-setup.exe" | Select-Object -First 1
@@ -185,7 +201,7 @@ jobs:
           targets: aarch64-apple-darwin,x86_64-apple-darwin
       - run: npm ci
         working-directory: apps/desktop
-      - name: Build signed and notarized app
+      - name: Build app and draft release
         uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -208,13 +224,14 @@ jobs:
             - Appleシリコン搭載Mac: `読み上げくん_*_aarch64.dmg`
             - Intel搭載Mac: `読み上げくん_*_x64.dmg`
 
-            すべてのインストーラは署名済みです。変更内容はCHANGELOGを確認してください。
+            コード署名は導入準備中です。ダウンロード後は`SHA256SUMS.txt`で改ざんがないか確認できます。macOSで開けない場合は、アプリを右クリックして「開く」を選んでください。変更内容はCHANGELOGを確認してください。
 
             Code signing policy: https://github.com/yhay81/yomiage-kun/blob/main/CODE_SIGNING_POLICY.md
           releaseDraft: true
           prerelease: false
           args: --bundles dmg --target ${{ matrix.target }}
       - name: Verify code signature and notarization
+        if: needs.verify-secrets.outputs.apple_signing == 'true'
         shell: bash
         run: |
           app_path="$(find target/${{ matrix.target }}/release/bundle/macos -maxdepth 1 -name '*.app' -print -quit)"
