@@ -230,7 +230,7 @@ jobs:
             Code signing policy: https://github.com/yhay81/yomiage-kun/blob/main/CODE_SIGNING_POLICY.md
           releaseDraft: true
           prerelease: false
-          args: --bundles dmg --target ${{ matrix.target }}
+          args: --bundles app,dmg --target ${{ matrix.target }}
       - name: Build app and draft release (unsigned)
         if: needs.verify-secrets.outputs.apple_signing != 'true'
         uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # v1
@@ -254,7 +254,7 @@ jobs:
             Code signing policy: https://github.com/yhay81/yomiage-kun/blob/main/CODE_SIGNING_POLICY.md
           releaseDraft: true
           prerelease: false
-          args: --bundles dmg --target ${{ matrix.target }}
+          args: --bundles app,dmg --target ${{ matrix.target }}
       - name: Verify code signature and notarization
         if: needs.verify-secrets.outputs.apple_signing == 'true'
         shell: bash
