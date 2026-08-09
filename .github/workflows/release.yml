@@ -83,7 +83,9 @@ jobs:
   windows:
     name: Windows x64
     needs: [prepare, verify-secrets]
-    timeout-minutes: 1
+    # Signed Tauri builds cannot finish in the 1-minute hosted-Actions budget;
+    # tag-gated release builds are the documented exception.
+    timeout-minutes: 45
     runs-on: windows-latest
     permissions:
       contents: write
@@ -165,7 +167,8 @@ jobs:
             target: aarch64-apple-darwin
           - name: macOS Intel
             target: x86_64-apple-darwin
-    timeout-minutes: 1
+    # Signed + notarized Tauri builds cannot finish in the 1-minute budget.
+    timeout-minutes: 45
     runs-on: macos-latest
     permissions:
       contents: write
@@ -224,7 +227,7 @@ jobs:
   checksums:
     name: Publish checksums
     needs: [prepare, windows, macos]
-    timeout-minutes: 1
+    timeout-minutes: 5
     runs-on: ubuntu-latest
     permissions:
       contents: write
