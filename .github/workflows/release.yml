@@ -201,7 +201,8 @@ jobs:
           targets: aarch64-apple-darwin,x86_64-apple-darwin
       - run: npm ci
         working-directory: apps/desktop
-      - name: Build app and draft release
+      - name: Build app and draft release (signed)
+        if: needs.verify-secrets.outputs.apple_signing == 'true'
         uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -213,6 +214,30 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        with:
+          projectPath: apps/desktop
+          tagName: ${{ needs.prepare.outputs.tag }}
+          releaseName: 読み上げくん ${{ needs.prepare.outputs.tag }}
+          releaseBody: |
+            お使いのパソコンに合うインストーラを1つダウンロードしてください。
+
+            - Windows 11: `読み上げくん_*_x64-setup.exe`
+            - Appleシリコン搭載Mac: `読み上げくん_*_aarch64.dmg`
+            - Intel搭載Mac: `読み上げくん_*_x64.dmg`
+
+            コード署名は導入準備中です。ダウンロード後は`SHA256SUMS.txt`で改ざんがないか確認できます。macOSで開けない場合は、アプリを右クリックして「開く」を選んでください。変更内容はCHANGELOGを確認してください。
+
+            Code signing policy: https://github.com/yhay81/yomiage-kun/blob/main/CODE_SIGNING_POLICY.md
+          releaseDraft: true
+          prerelease: false
+          args: --bundles dmg --target ${{ matrix.target }}
+      - name: Build app and draft release (unsigned)
+        if: needs.verify-secrets.outputs.apple_signing != 'true'
+        uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           projectPath: apps/desktop
           tagName: ${{ needs.prepare.outputs.tag }}
