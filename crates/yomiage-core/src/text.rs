@@ -4,8 +4,9 @@ use regex::Regex;
 use unicode_normalization::UnicodeNormalization;
 use unicode_segmentation::UnicodeSegmentation;
 
-static URL: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"(?i)\bhttps?://[^\s<>()]+").expect("valid URL regex"));
+static URL: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"(?i)https?://[a-z0-9._~:/?#\[\]@!$&'*,;=%+-]+").expect("valid URL regex")
+});
 static CUSTOM_EMOJI: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"<a?:([A-Za-z0-9_]+):\d+>").expect("valid emoji regex"));
 static USER_MENTION: LazyLock<Regex> =
@@ -65,6 +66,13 @@ mod tests {
             NormalizeOptions::default(),
         );
         assert_eq!(normalized, "こんにちは メンション URL party わら");
+    }
+
+    #[test]
+    fn replaces_url_without_leading_whitespace() {
+        let normalized =
+            normalize_discord_text("詳細はhttps://example.comを確認", NormalizeOptions::default());
+        assert_eq!(normalized, "詳細は URL を確認");
     }
 
     #[test]

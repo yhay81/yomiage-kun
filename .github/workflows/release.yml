@@ -234,7 +234,7 @@ jobs:
       - name: Create SHA-256 checksums
         shell: bash
         run: |
-          find release-files -maxdepth 1 -type f -print0 \
+          find release-files -maxdepth 1 -type f ! -name 'SHA256SUMS.txt' -print0 \
             | sort -z \
             | xargs -0 sha256sum \
             | sed 's#  release-files/#  #' > SHA256SUMS.txt
