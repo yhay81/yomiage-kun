@@ -1,9 +1,16 @@
 [extend]
 useDefault = true
 
-[[allowlists]]
-description = "Cargoの生成済みチェックサムとローカルビルド成果物"
-paths = [
-    '''(^|[\\/])Cargo\.lock$''',
-    '''(^|[\\/])target[\\/]''',
-]
+# Compatible with the action-provided gitleaks 8.24.3.
+[allowlist]
+description = "Generated local build output"
+paths = ['''(^|[\\/])target[\\/]''']
+
+[[rules]]
+id = "generic-api-key"
+[[rules.allowlists]]
+description = "Public libcrux dependency-name pair in Cargo.lock only"
+condition = "AND"
+paths = ['''(^|[\\/])Cargo\.lock$''']
+regexTarget = "match"
+regexes = ['''^libcrux-secrets",\r?\n[ \t]*"libcrux-sha[23]"$''']

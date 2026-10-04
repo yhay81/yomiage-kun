@@ -19,5 +19,8 @@ tokio.workspace = true
 tracing.workspace = true
 yomiage-core = { path = "../yomiage-core" }
 
+[dev-dependencies]
+async-trait.workspace = true
+
 [lints]
 workspace = true

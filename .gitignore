@@ -15,5 +15,7 @@ Thumbs.db
 
 # Local application data and downloaded voice models
 data/
+!/vendor/songbird/src/events/context/data/
+!/vendor/songbird/src/events/context/data/**
 models/
 engines/

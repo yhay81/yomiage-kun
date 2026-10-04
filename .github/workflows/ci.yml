@@ -18,7 +18,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest, macos-latest]
-    timeout-minutes: 1
+    # Cold compilation and test linking exceed one minute; keep a finite budget.
+    timeout-minutes: 15
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -34,12 +35,11 @@ jobs:
           workspaces: . -> target
       - name: Check formatting
         run: cargo fmt --all -- --check
-      - name: Check workspace
-        run: cargo check --workspace --all-targets
-      - name: Run Clippy
-        run: cargo clippy --workspace --all-targets -- -D warnings
+      # Clippy checks the same targets as cargo check; avoid checking twice.
+      - name: Check workspace and run Clippy
+        run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - name: Run tests
-        run: cargo test --workspace
+        run: cargo test --workspace --locked
 
   frontend:
     name: Frontend
@@ -58,7 +58,8 @@ jobs:
           node-version: 24
           cache: npm
           cache-dependency-path: apps/desktop/package-lock.json
-      - run: npm ci
+      # The following step explicitly audits the complete installed tree.
+      - run: npm ci --no-audit
       - run: npm audit --audit-level=high
       - name: Verify release metadata
         run: node ../../.github/scripts/verify-release-version.mjs
@@ -84,7 +85,8 @@ jobs:
           cache: npm
           cache-dependency-path: site/package-lock.json
       - name: 必要なものを準備
-        run: npm ci
+        # The following step explicitly audits the complete installed tree.
+        run: npm ci --no-audit
       - name: 安全性を確認
         run: npm audit --audit-level=high
       - name: 表示できる形へまとめる
