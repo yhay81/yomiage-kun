@@ -18,7 +18,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest, macos-latest]
-    timeout-minutes: 1
+    # Cold compilation and test linking exceed one minute; keep a finite budget.
+    timeout-minutes: 15
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
