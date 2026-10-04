@@ -5,6 +5,10 @@ members = [
     "crates/yomiage-discord",
 ]
 resolver = "3"
+exclude = ["vendor/songbird"]
+
+[patch.crates-io]
+songbird = { path = "vendor/songbird" }
 
 [workspace.package]
 version = "0.1.1"
