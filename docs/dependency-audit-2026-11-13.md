@@ -2,7 +2,7 @@
 
 ## 状態
 
-この変更は依存関係修正の途中段階です。Rust の監査は下記の2件が未解決のため失敗します。新しい `deny.toml` の例外は追加していません。暗号依存を解決するまでリリース可能とは扱いません。
+配布対象の Windows x64 / macOS Apple Silicon / macOS Intel について、今回失敗した Rust の12件を解消しました。新しい監査例外は追加していません。既存例外は不要な9件を削除し、Songbird の `derivative` 保守終了（RUSTSEC-2024-0388）の1件だけを維持しています。npm 監査も両プロジェクトで指摘0件です。
 
 基準は main `799d111b0c1cafb7056558191d29acd96134505a` と [Security run 43433775145](https://github.com/yhay81/yomiage-kun/actions/runs/43433775145) です。[PR #27](https://github.com/yhay81/yomiage-kun/pull/27) の rustls 更新も含みますが、残りの依存関係と npm 監査の修正が必要でした。
 
@@ -28,36 +28,33 @@ updater 2.14.1 の公開ソースでは、ダウンロード後に署名を確�
 
 参照: [updater 2.14.1 のソース](https://docs.rs/crate/tauri-plugin-updater/2.14.1/source/src/updater.rs)、[依存 manifest](https://docs.rs/crate/tauri-plugin-updater/2.14.1/source/Cargo.toml)、[ZIP advisory](https://rustsec.org/advisories/RUSTSEC-2026-0368.html)。ビルドの成功だけで実際の署名付き更新・再起動の動作確認が済んだとは扱いません。
 
-## 残るブロッカー
+## 暗号依存の解消
 
-### crypto-bigint 0.5.5 — RUSTSEC-2026-0387
+元の経路は `Songbird → davey / OpenMLS → p256 / p384 / k256 → elliptic-curve 0.13 → crypto-bigint 0.5.5` でした。DAVE の P-256 署名・鍵交換で実際に使うため、監査除外にはできません。[RUSTSEC-2026-0387](https://rustsec.org/advisories/RUSTSEC-2026-0387.html) は 0.7.6 以降で修正されています。
 
-依存経路は `yomiage-desktop → yomiage-discord → songbird → davey / OpenMLS → p256 → elliptic-curve 0.13.8 → crypto-bigint 0.5.5` です。HPKE の p384 / k256 からの経路もあります。
+単純な lockfile 更新は親のバージョン制約で不可能です。公開済み davey 0.2.0 と OpenMLS crypto / credential 0.6.0 も古い p256 を要求するため、メジャー更新だけでは解消しません。DAVE の削除は Discord 音声接続の暗号化を壊します。暗号演算を独自に書き換える案も採用していません。
 
-DAVE v1 の選択する cipher suite は `MLS_128_DHKEMP256_AES128GCM_SHA256_P256` です。Songbird は接続時に `DaveSession::new()` と `create_key_package()` を呼び、davey は `SignatureKeyPair::new()` と `OpenMlsRustCrypto` を使用します。したがって暗号処理は実際の Discord 音声接続で使用されます。攻撃成立の確認はしていませんが、秘密値の処理時間やマイクロアーキテクチャ上の観測による情報漏えいのリスクを否定できません。
+OpenMLS 上流で取り込まれた [暗号クレート移行 #2249](https://github.com/openmls/openmls/commit/055a2b4b06b595585783ee488e28eebd62212e2a) と公開済み HPKE 0.8 を、既存の OpenMLS 0.8 API を維持して取り込みました。`davey`、`openmls_rust_crypto`、`openmls_basic_credential` の3クレートをソースとライセンス付きで固定し、変更は依存宣言・乱数/署名API・長さ検証に限定しています。暗号演算は公開済み RustCrypto / HPKE 実装が担当し、すべての経路が修正済み crypto-bigint 0.7.11 を使います。
 
-[RustSec](https://rustsec.org/advisories/RUSTSEC-2026-0387.html) の修正版は crypto-bigint >=0.7.6 です。elliptic-curve 0.13.8 は 0.5 系を要求し、lockfile だけで 0.7 系へ置換できません。調査時点の davey 0.2.0 と OpenMLS の最新公開 crypto / credential backend 0.6.0 も p256 0.13 を要求しています。p256 0.14 と hpke-rs-rust-crypto 0.8.0 は公開済みですが、DAVE と OpenMLS の複数 backend を含む移行が必要です。
+ソースのコミット・アーカイブの SHA-256・差分の範囲・パッチを外す条件は [vendor/CRYPTO-PATCHES.md](../vendor/CRYPTO-PATCHES.md) に記録しています。この取り込みは独立した暗号監査の代替ではありません。
 
-解消には上流が対応したリリース、または別途レビューした互換移行が必要です。後者では DAVE の鍵生成・署名・MLS commit/welcome・暗号化の相互運用テストと実 Discord 音声接続の確認が必要です。独自の暗号演算修正やバージョン番号の偽装は行っていません。
+RFC 6979 / 8032 / 9180 の外部テストベクトルで署名・検証・HPKE鍵導出・復号・エクスポートを検証し、不正な長さと改ざんを拒否することを確認します。さらに無変更の公開版 davey 0.1.5 と修正版を別プロセスで接続し、双方が commit/welcome を送る組み合わせ、3人目の参加による鍵更新、音声の双方向暗号化、改ざん・再送の拒否を検証します。旧版はテスト専用の一時プロジェクトに隔離し、配布物には含めません。この相互運用試験を Windows / macOS の CI に追加しています。
 
-参照: [davey 0.1.5 session](https://docs.rs/crate/davey/0.1.5/source/src/session.rs)、[davey 0.2.0 manifest](https://docs.rs/crate/davey/0.2.0/source/Cargo.toml)、[OpenMLS crypto 0.6.0 manifest](https://docs.rs/crate/openmls_rust_crypto/0.6.0/source/Cargo.toml)、[elliptic-curve 0.13.8 manifest](https://docs.rs/crate/elliptic-curve/0.13.8/source/Cargo.toml)。
+## pin-utils の解消
 
-### pin-utils 0.1.0 — RUSTSEC-2026-0441
+`davey → openmls (js) → fluvio-wasm-timer → pin-utils` は WASM の時刻取得用でした。OpenMLS の [lifetime.rs](https://docs.rs/crate/openmls/0.8.3/source/src/key_packages/lifetime.rs) は Windows / macOS で `std::time` を使います。davey の `js` feature を `cfg(target_arch = "wasm32")` に限定し、3つの配布対象からタイマーごと取り除きました。[RUSTSEC-2026-0441](https://rustsec.org/advisories/RUSTSEC-2026-0441.html) を除外していません。
 
-依存経路は `davey → openmls (js feature) → fluvio-wasm-timer 0.2.5 → pin-utils` です。これは既知の攻撃を報告する advisory ではなく、保守終了の指摘です。fluvio-wasm-timer の公開版は 0.2.5 のみで、安全版への単純な更新はありません。
-
-OpenMLS の `key_packages/lifetime.rs` は wasm32 だけで fluvio の時刻 API を使い、配布対象の Windows/macOS では `std::time` を使用します。ただし davey が js feature を有効にするため依存グラフには含まれます。次の対応は上流で js 依存を wasm32 に限定するか、fluvio の pin マクロを保守された実装へ移行することです。対象プラットフォームとタイマーの挙動を検証してから更新します。
-
-参照: [advisory](https://rustsec.org/advisories/RUSTSEC-2026-0441.html)、[OpenMLS 0.8.3 lifetime](https://docs.rs/crate/openmls/0.8.3/source/src/key_packages/lifetime.rs)、[fluvio-wasm-timer 0.2.5](https://docs.rs/crate/fluvio-wasm-timer/0.2.5/source/)。
+非配布対象の WASM 用には Cargo.lock に pin-utils が残ります。WASM ビルドを安全とする主張はしておらず、WASM を配布する場合はこの依存を別途解消する必要があります。
 
 ## 再検証
 
-CI と同じ Rust 1.97.0、Node.js 24 で実行します。`cargo deny` は上記2件が解消するまで失敗することが期待されます。既存の他の5件の RustSec 例外はこの修正でも残っています。
+CI と同じ Rust 1.97.0、Node.js 24 で実行します。監査は配布対象3つを `deny.toml` の既存設定で検証します。
 
 ```sh
 cargo fmt --all -- --check
 cargo clippy --workspace --all-targets --locked -- -D warnings
 cargo test --workspace --locked
+python .github/scripts/check-dave-interop.py
 cargo deny --all-features --locked check advisories licenses sources
 node .github/scripts/verify-release-version.mjs
 npm --prefix apps/desktop ci --no-audit
@@ -70,4 +67,4 @@ npm --prefix site audit --audit-level=high
 npm --prefix site run verify
 ```
 
-実 Discord / TTS 接続、署名付きインストーラ生成、実アプリの自動更新は別途手動検証が必要です。
+実 Discord / TTS 接続、クリーンな実機へのインストール、旧版アプリからの更新と再起動は、この自動試験では確認できません。リリースでは別途、3対象のビルド成果物・自動更新署名・チェックサムを確認します。OSコード署名とmacOS公証は既存方針どおり証明書未登録のため実施しません。

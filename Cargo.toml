@@ -5,13 +5,16 @@ members = [
     "crates/yomiage-discord",
 ]
 resolver = "3"
-exclude = ["vendor/songbird"]
+exclude = ["vendor/songbird", "vendor/davey", "vendor/openmls_rust_crypto", "vendor/openmls_basic_credential"]
 
 [patch.crates-io]
 songbird = { path = "vendor/songbird" }
+davey = { path = "vendor/davey" }
+openmls_rust_crypto = { path = "vendor/openmls_rust_crypto" }
+openmls_basic_credential = { path = "vendor/openmls_basic_credential" }
 
 [workspace.package]
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 rust-version = "1.97"
 authors = ["Yusuke Hayashi"]

@@ -4,6 +4,20 @@
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-11-13
+
+### Security
+
+- Rustls、WebPKI、Tokio、ZIP の脆弱性を修正済みの依存版へ更新
+- DAVE / OpenMLS の暗号バックエンドに上流の互換移行を取り込み、crypto-bigint の問題を解消
+- Windows / macOS で不要な WASM タイマー依存を外し、pin-utils の保守終了の指摘を解消
+- デスクトップのフロントエンドと公式サイトの依存関係を更新し、npm 監査の指摘を解消
+
+### Changed
+
+- Tauri と自動更新プラグインを更新し、既存の更新署名と設定形式を維持
+- 標準の暗号テストベクトルと、旧版 DAVE との参加・鍵更新・音声暗号化の相互運用試験を CI に追加
+
 ## [0.1.1] - 2026-08-09
 
 ### Added
@@ -57,6 +71,7 @@
 
 - Python、BouyomiChan、一時ファイル監視に依存する旧実装
 
-[Unreleased]: https://github.com/yhay81/yomiage-kun/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/yhay81/yomiage-kun/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/yhay81/yomiage-kun/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/yhay81/yomiage-kun/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/yhay81/yomiage-kun/releases/tag/v0.1.0
