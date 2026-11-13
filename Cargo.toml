@@ -14,7 +14,7 @@ openmls_rust_crypto = { path = "vendor/openmls_rust_crypto" }
 openmls_basic_credential = { path = "vendor/openmls_basic_credential" }
 
 [workspace.package]
-version = "0.1.2"
+version = "0.1.3"
 edition = "2024"
 rust-version = "1.97"
 authors = ["Yusuke Hayashi"]
