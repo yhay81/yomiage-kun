@@ -19,14 +19,14 @@
   },
   "dependencies": {
     "@astrojs/sitemap": "3.7.3",
-    "astro": "7.2.8",
-    "sharp": "0.35.4"
+    "astro": "7.4.11",
+    "sharp": "0.35.5"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.9",
     "@biomejs/biome": "2.5.5",
     "parse5": "8.0.1",
     "typescript": "6.0.3",
-    "wrangler": "4.144.0"
+    "wrangler": "4.162.0"
   }
 }
