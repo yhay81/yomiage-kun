@@ -21,6 +21,13 @@ yomiage-core = { path = "../yomiage-core" }
 
 [dev-dependencies]
 async-trait.workspace = true
+davey = "=0.1.5"
+hex.workspace = true
+openmls = "=0.8.3"
+openmls_basic_credential = "=0.5.0"
+openmls_rust_crypto = "=0.5.1"
+openmls_traits = "=0.5.0"
+serde_json.workspace = true
 
 [lints]
 workspace = true

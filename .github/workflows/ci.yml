@@ -40,6 +40,8 @@ jobs:
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - name: Run tests
         run: cargo test --workspace --locked
+      - name: Check DAVE compatibility with published implementation
+        run: python .github/scripts/check-dave-interop.py
 
   frontend:
     name: Frontend

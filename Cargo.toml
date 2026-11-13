@@ -5,13 +5,16 @@ members = [
     "crates/yomiage-discord",
 ]
 resolver = "3"
-exclude = ["vendor/songbird"]
+exclude = ["vendor/songbird", "vendor/davey", "vendor/openmls_rust_crypto", "vendor/openmls_basic_credential"]
 
 [patch.crates-io]
 songbird = { path = "vendor/songbird" }
+davey = { path = "vendor/davey" }
+openmls_rust_crypto = { path = "vendor/openmls_rust_crypto" }
+openmls_basic_credential = { path = "vendor/openmls_basic_credential" }
 
 [workspace.package]
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 rust-version = "1.97"
 authors = ["Yusuke Hayashi"]
@@ -57,7 +60,7 @@ songbird = { version = "0.6.0", default-features = false, features = [
 ] }
 thiserror = "2.0.19"
 tempfile = "3.27.0"
-tokio = { version = "1.53.1", features = ["fs", "macros", "rt-multi-thread", "sync", "time"] }
+tokio = { version = "1.53.3", features = ["fs", "macros", "rt-multi-thread", "sync", "time"] }
 tracing = "0.1.44"
 tracing-subscriber = { version = "0.3.23", features = ["env-filter", "fmt"] }
 unicode-normalization = "0.1.25"

@@ -7,20 +7,8 @@ targets = [
 
 [advisories]
 ignore = [
-    # Songbird 0.6.0 / DAVEの最新公開版が移行待ち。代替版が公開されたら除去する。
-    "RUSTSEC-2024-0384",
+    # Songbird 0.6.0 が使う derivative。代替版が公開されたら除去する。
     "RUSTSEC-2024-0388",
-    # Tauri 2.11.5のURLパターン解析が使う間接依存。安全な上流更新はまだない。
-    "RUSTSEC-2025-0075",
-    "RUSTSEC-2025-0080",
-    "RUSTSEC-2025-0081",
-    "RUSTSEC-2025-0098",
-    "RUSTSEC-2025-0100",
-    # libcrux-sha3はdigest traitだけを使い、問題のあるselect/swap APIを呼ばない。
-    "RUSTSEC-2026-0212",
-    # HPKEが使うSHAKEは一括呼び出しで、出力長も32/64バイトのため該当条件を満たさない。
-    "RUSTSEC-2026-0207",
-    "RUSTSEC-2026-0208",
 ]
 
 [licenses]
