@@ -4,7 +4,9 @@
 
 ## [Unreleased]
 
-## [0.1.2] - 2026-11-13
+## [0.1.3] - 2026-11-13
+
+0.1.2 は配布ビルドで Tauri の版不一致を検出したため未配布です。以下の変更は 0.1.3 で初めて配布します。
 
 ### Security
 
@@ -12,6 +14,11 @@
 - DAVE / OpenMLS の暗号バックエンドに上流の互換移行を取り込み、crypto-bigint の問題を解消
 - Windows / macOS で不要な WASM タイマー依存を外し、pin-utils の保守終了の指摘を解消
 - デスクトップのフロントエンドと公式サイトの依存関係を更新し、npm 監査の指摘を解消
+
+### Fixed
+
+- Tauri の Rust 本体・JavaScript API・CLI を互換性のある版へ揃え、配布ビルドの停止を解消
+- 通常 CI のリリース情報検証でも Tauri 本体と JavaScript API の major/minor 不一致を検出
 
 ### Changed
 
@@ -71,7 +78,7 @@
 
 - Python、BouyomiChan、一時ファイル監視に依存する旧実装
 
-[Unreleased]: https://github.com/yhay81/yomiage-kun/compare/v0.1.2...HEAD
-[0.1.2]: https://github.com/yhay81/yomiage-kun/compare/v0.1.1...v0.1.2
+[Unreleased]: https://github.com/yhay81/yomiage-kun/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/yhay81/yomiage-kun/compare/v0.1.1...v0.1.3
 [0.1.1]: https://github.com/yhay81/yomiage-kun/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/yhay81/yomiage-kun/releases/tag/v0.1.0

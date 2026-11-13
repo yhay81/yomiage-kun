@@ -23,6 +23,22 @@ if (tauriConfig.version !== version) {
   fail(`tauri.conf.json (${tauriConfig.version}) と package.json (${version}) が一致しません`);
 }
 
+// The bundler rejects an API/runtime minor mismatch even when tsc and cargo test pass.
+const rustTauriVersion = read("Cargo.lock").match(
+  /^name = "tauri"\r?\nversion = "([^"]+)"/m,
+)?.[1];
+const npmLock = JSON.parse(read("apps/desktop/package-lock.json"));
+const jsTauriVersion = npmLock.packages["node_modules/@tauri-apps/api"]?.version;
+const majorMinor = (value) => value?.match(/^(\d+\.\d+)\./)?.[1];
+if (
+  !majorMinor(rustTauriVersion) ||
+  majorMinor(rustTauriVersion) !== majorMinor(jsTauriVersion)
+) {
+  fail(
+    `Tauri 本体 (${rustTauriVersion}) と JavaScript API (${jsTauriVersion}) の major/minor が一致しません`,
+  );
+}
+
 const requestedTag = process.argv[2];
 if (requestedTag) {
   const expectedTag = `v${version}`;
