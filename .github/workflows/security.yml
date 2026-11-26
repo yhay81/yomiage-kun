@@ -61,6 +61,8 @@ jobs:
 
   codeql:
     name: CodeQL
+    outputs:
+      sarif-id: ${{ steps.analysis.outputs.sarif-id }}
     timeout-minutes: 1
     runs-on: ubuntu-latest
     permissions:
@@ -73,4 +75,31 @@ jobs:
       - uses: github/codeql-action/init@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81 # v4
         with:
           languages: javascript-typescript
-      - uses: github/codeql-action/analyze@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81 # v4
+      - id: analysis
+        uses: github/codeql-action/analyze@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81 # v4
+        with:
+          wait-for-processing: ${{ github.event_name == 'pull_request' }}
+
+  codeql-processing:
+    name: Verify CodeQL results
+    needs: codeql
+    if: github.event_name != 'pull_request'
+    timeout-minutes: 1
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: read
+    steps:
+      - name: Confirm GitHub processed the uploaded analysis
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SARIF_ID: ${{ needs.codeql.outputs.sarif-id }}
+        run: |
+          test -n "$SARIF_ID"
+          while true; do
+            result=$(gh api "repos/$GITHUB_REPOSITORY/code-scanning/sarifs/$SARIF_ID")
+            case "$(jq -r '.processing_status' <<< "$result")" in
+              complete) exit 0 ;;
+              pending) sleep 2 ;;
+              *) jq '{processing_status, errors}' <<< "$result" >&2; exit 1 ;;
+            esac
+          done
