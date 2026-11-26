@@ -3,16 +3,17 @@
 This directory contains the published crates.io songbird 0.6.0 source
 (upstream commit 3f77b5fa6de3f7354fdd7ef0dfa861518d304cdd), src/, build.rs,
 normalized Cargo.toml and README.md. LICENSE.md is from upstream v0.6.0.
-The only change to the published Rust package is Cargo.toml's ringbuf
-requirement: 0.4 -> 0.5.2, fixing RUSTSEC-2026-0293. No Rust code or
-voice/queue behavior is intentionally changed. The published Cargo.lock,
+The ringbuf requirement moves from 0.4 to 0.5.2 to fix RUSTSEC-2026-0293.
+Default features of serde-aux are disabled because Songbird does not use
+its optional chrono helpers (RUSTSEC-2026-0543). These are dependency
+changes only. The published Cargo.lock,
 Cargo.toml.orig and cargo cache bookkeeping files are not needed here.
 
 The root [patch.crates-io] redirects Songbird to this copy. This avoids
 using the unmerged upstream PR #312, which includes unrelated changes.
 It creates temporary maintenance responsibility: review upstream security
 updates and replace this patch with a released Songbird that uses ringbuf
->=0.5.2, then remove the directory, workspace exclude and patch entry.
+>=0.5.2 and no longer enables the chrono helpers, then remove the directory, workspace exclude and patch entry.
 
 Validate application check/clippy/tests and Songbird's builtin queue and
 async input adapter tests before changing this patch. Desktop macOS and
