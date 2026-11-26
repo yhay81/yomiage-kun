@@ -255,6 +255,7 @@ features = ["derive"]
 
 [dependencies.serde-aux]
 version = "4"
+default-features = false
 optional = true
 
 [dependencies.serde_json]
