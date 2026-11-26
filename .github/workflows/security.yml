@@ -31,13 +31,20 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-      - uses: EmbarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25 # v2.1.1
-        with:
-          # Explicit input uses the action's minimal toolchain installation profile.
-          rust-version: "1.97.0"
-          arguments: --all-features --locked
-          command: check
-          command-arguments: advisories licenses sources
+      - name: Install the audit tool
+        working-directory: ${{ runner.temp }}
+        run: |
+          archive=cargo-deny-0.20.2-x86_64-unknown-linux-musl
+          curl --fail --location --silent --show-error -o cargo-deny.tar.gz \
+            "https://github.com/EmbarkStudios/cargo-deny/releases/download/0.20.2/$archive.tar.gz"
+          echo "9f12ed4c49936e09b48bf862b595cde2fe64fcbd9d74dfacac6131ca824c8d5f  cargo-deny.tar.gz" | sha256sum --check
+          tar -xzf cargo-deny.tar.gz --strip-components=1 "$archive/cargo-deny"
+      - name: Audit the locked dependency graph
+        env:
+          RUSTUP_TOOLCHAIN: 1.97.0
+        run: |
+          rustup toolchain install "$RUSTUP_TOOLCHAIN" --profile minimal
+          "$RUNNER_TEMP/cargo-deny" --all-features --locked check advisories licenses sources
 
   dependency-review:
     name: Dependency review
